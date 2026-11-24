@@ -16,7 +16,7 @@ import 'ui/auth/sifre.dart';
 import 'ui/auth/sifre_gonderildi.dart';
 import 'ui/home/shell.dart';
 
-class CuzdanApp extends StatelessWidget {
+class CuzdanApp extends StatefulWidget {
   const CuzdanApp({
     super.key,
     required this.auth,
@@ -31,17 +31,51 @@ class CuzdanApp extends StatelessWidget {
   final bool useGoogleFonts;
 
   @override
+  State<CuzdanApp> createState() => _CuzdanAppState();
+}
+
+class _CuzdanAppState extends State<CuzdanApp> {
+  // Oturumdaki hesabın kimliği. Değişince varlıklar o hesaba göre yeniden yüklenir.
+  String? _session;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.auth.addListener(_syncSession);
+    _syncSession();
+  }
+
+  @override
+  void dispose() {
+    widget.auth.removeListener(_syncSession);
+    super.dispose();
+  }
+
+  void _syncSession() {
+    final id = widget.auth.user?.email;
+    if (id == _session) return;
+    _session = id;
+    if (id == null) {
+      widget.portfolio.reset();
+    } else {
+      widget.portfolio.load();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<AuthController>.value(value: auth),
-        ChangeNotifierProvider<MarketController>.value(value: market),
-        ChangeNotifierProvider<PortfolioController>.value(value: portfolio),
+        ChangeNotifierProvider<AuthController>.value(value: widget.auth),
+        ChangeNotifierProvider<MarketController>.value(value: widget.market),
+        ChangeNotifierProvider<PortfolioController>.value(
+          value: widget.portfolio,
+        ),
       ],
       child: MaterialApp(
         title: 'Cüzdan',
         debugShowCheckedModeBanner: false,
-        theme: buildTheme(useGoogleFonts: useGoogleFonts),
+        theme: buildTheme(useGoogleFonts: widget.useGoogleFonts),
         home: const _Root(),
         onGenerateRoute: _route,
       ),

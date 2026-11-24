@@ -18,6 +18,10 @@ class PortfolioController extends ChangeNotifier {
   List<Holding> _holdings = const [];
   String? _error;
 
+  /// Her `load`/`reset` sayacı artırır; geç gelen eski sonuç yok sayılır
+  /// (çıkış yapıp başka hesapla girince öncekinin varlıkları görünmesin).
+  int _generation = 0;
+
   List<Holding> get holdings => _holdings;
 
   /// Son işlem başarısız olduysa kullanıcıya gösterilecek mesaj.
@@ -27,10 +31,14 @@ class PortfolioController extends ChangeNotifier {
   double? valueOf(Holding h) => rowValue(h, _market.quotes);
 
   Future<void> load() async {
+    final generation = ++_generation;
     try {
-      _holdings = List.unmodifiable(await _repo.load());
+      final loaded = await _repo.load();
+      if (generation != _generation) return;
+      _holdings = List.unmodifiable(loaded);
       _error = null;
     } catch (_) {
+      if (generation != _generation) return;
       _error = 'Varlıkların yüklenemedi. Bağlantını kontrol edip tekrar dene.';
     }
     notifyListeners();
@@ -38,6 +46,7 @@ class PortfolioController extends ChangeNotifier {
 
   /// Oturum kapanınca listeyi ve hatayı temizler. Depoya yazmaz.
   void reset() {
+    _generation++;
     _holdings = const [];
     _error = null;
     notifyListeners();

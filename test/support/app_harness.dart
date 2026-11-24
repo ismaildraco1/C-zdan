@@ -48,8 +48,9 @@ Future<Harness> pumpApp(
   bool registered = false,
   bool signedIn = false,
   HoldingsRepository? holdingsRepo,
+  FakeAuthRepository? authRepo,
 }) async {
-  final repo = FakeAuthRepository();
+  final repo = authRepo ?? FakeAuthRepository();
   if (registered || signedIn) {
     await repo.signUp(
       firstName: 'Ayşe',

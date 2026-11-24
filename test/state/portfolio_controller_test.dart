@@ -8,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../support/test_feed.dart';
 import '../support/flaky_repository.dart';
 
+import 'package:cuzdan/domain/models.dart';
+
 void main() {
   late TestFeed feed;
   late MarketController market;
@@ -162,5 +164,35 @@ void main() {
     expect(p.holdings, isEmpty);
     expect(p.error, isNull);
     expect(repo.saves, saves);
+  });
+
+  test('reset sonrası gelen eski load sonucu yok sayılır', () async {
+    final repo = SlowLoadRepository();
+    final p = PortfolioController(repo, market);
+
+    final pending = p.load(); // eski kullanıcının yüklemesi
+    p.reset(); // çıkış
+    repo.finish([Holding(id: 'x', kind: AssetKind.usd, amount: 1, note: '')]);
+    await pending;
+
+    expect(p.holdings, isEmpty);
+  });
+
+  test('daha yeni load eskisini geçersiz kılar', () async {
+    final repo = SlowLoadRepository();
+    final p = PortfolioController(repo, market);
+
+    final first = p.load();
+    final second = p.load();
+    repo.finishAt(1, [
+      Holding(id: 'new', kind: AssetKind.eur, amount: 2, note: ''),
+    ]);
+    await second;
+    repo.finishAt(0, [
+      Holding(id: 'old', kind: AssetKind.usd, amount: 1, note: ''),
+    ]);
+    await first;
+
+    expect(p.holdings.single.id, 'new');
   });
 }
