@@ -9,27 +9,42 @@ Alış maliyeti ve kâr/zarar takibi yoktur.
 
 ## Durum
 
-Arayüz ve uygulama mantığı tamam. **Fiyat, hesap ve varlık verisi şimdilik
-sahtedir**, hiçbir dış servise bağlanılmaz:
+Arayüz ve uygulama mantığı tamam. Hesap ve varlıklar **Supabase** ile çalışır
+(e-posta/şifre); Supabase ayarı verilmezse sahte servislerle açılır. Fiyatlar
+**her iki durumda da sahtedir**.
 
-| Parça | Şimdiki uygulama | Davranışı |
+| Parça | Ayar verilmişse | Ayar yoksa |
 |---|---|---|
-| Fiyatlar | `FakePriceFeed` | Örnek fiyatlar etrafında iki saniyede bir dalgalanır. Ayarlar'da kaynak "Örnek fiyatlar" görünür. |
-| Hesap ve giriş | `FakeAuthRepository` | Bellekte çalışır. Uygulama kapanınca hesaplar silinir. Google ve Apple düğmeleri sahte bir kullanıcı açar. |
-| Varlıklar | `LocalHoldingsRepository` | Telefonda (`shared_preferences`) tutulur. Hesaba bağlı değildir. |
+| Hesap ve giriş | `SupabaseAuthRepository` (e-posta/şifre) | `FakeAuthRepository` (bellekte, kapanınca silinir) |
+| Varlıklar | `SupabaseHoldingsRepository` (hesaba bağlı, RLS) | `LocalHoldingsRepository` (telefonda) |
+| Fiyatlar | `FakePriceFeed` (örnek, iki saniyede bir dalgalanır) | aynı |
+| Google / Apple girişi | kapalı ("yakında") | sahte kullanıcı açar |
 
-Gerçek bağlantılar ayrı bir iştir. Karar bekleyen konular için
-`docs/superpowers/specs/2026-11-15-cuzdan-design.md` dosyasındaki "Açık sorular"
-bölümüne bak.
+Kurulum adımları ve elle doğrulama listesi: [`supabase/README.md`](supabase/README.md).
+Karar bekleyen konular: `docs/superpowers/specs/2026-11-15-cuzdan-design.md`.
+
+**Gerçek sunucuya karşı hiçbir adım denenmedi.** Supabase kodu sahte bir HTTP
+istemcisiyle sınandı; gerçek davranış `supabase/README.md`'deki listeyle
+doğrulanmalı.
 
 ## Çalıştırma
 
 ```bash
 flutter pub get
-flutter run          # bağlı telefonda ya da emülatörde
 flutter test         # tüm testler
 flutter analyze
+
+# Sahte servislerle:
+flutter run
+
+# Supabase ile:
+flutter run \
+  --dart-define=SUPABASE_URL=https://xxxx.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=sb_publishable_...
 ```
+
+Yalnızca genel (publishable ya da anon) anahtar kullanılır. `service_role` anahtarı
+uygulamaya hiçbir zaman konmaz.
 
 ## Kod yapısı
 
@@ -44,15 +59,16 @@ test/          her katman için testler; test/support altında test yardımcıla
 
 ## Gerçek servisleri bağlama
 
-Ekranlar yalnızca şu üç arayüzü bilir. Gerçek servis seçilince bunların yeni bir
-uygulaması yazılır ve `lib/main.dart` içinde değiştirilir. Ekranlar değişmez.
+Ekranlar yalnızca şu üç arayüzü bilir. `lib/bootstrap.dart` hangi uygulamanın
+kullanılacağını seçer.
 
 - `PriceFeed` (`lib/data/price_feed.dart`): `quotes` ve `ons` akışları ve
   `sourceName`. Her `quotes` olayı yedi varlık türünün hepsini içermelidir.
-- `AuthRepository` (`lib/data/auth_repository.dart`): giriş, kayıt, Google, Apple,
-  şifre sıfırlama, çıkış, hesap silme, profil güncelleme.
-- `HoldingsRepository` (`lib/data/holdings_repository.dart`): varlık listesini
-  yükle ve kaydet. Hesap servisi seçilince sunucuya yazan bir uygulama gelir.
+  **Henüz gerçeği yok**: fiyat kaynağı kararı açık.
+- `AuthRepository` (`lib/data/auth_repository.dart`): Supabase uygulaması hazır
+  (`lib/data/supabase/`). Google ve Apple için `supportsSocialLogin` ve
+  `signInWithGoogle/Apple` doldurulacak.
+- `HoldingsRepository` (`lib/data/holdings_repository.dart`): Supabase uygulaması hazır.
 
 Fiyat kaynağı olarak düşünülen Harem Altın'ın resmi, herkese açık bir API'si
 bulunamadı. Bir üçüncü taraf servis seçmeden önce lisansını, gecikmesini ve
@@ -60,14 +76,15 @@ doğruluğunu ayrıca kontrol etmek gerekir.
 
 ## Bilinen eksikler
 
-- Karanlık tema yok. Ayarlar'daki "Görünüm" satırı pasiftir.
-- Ayarlar'daki bildirim, uygulama kilidi ve bakiyeyi gizleme anahtarları ekranda
-  durur ama kaydedilmez ve henüz bir işe bağlı değildir.
-- "Şifreyi değiştir" ekranı yok. Profil'de e-posta ve fotoğraf değiştirilemez.
-- Google ve Apple düğmeleri yer tutucudur. Resmi logo ve tasarım kuralları gerçek
-  giriş bağlanırken uygulanmalıdır.
-- Varlıklar hesaba değil cihaza bağlıdır. Aynı telefonda başka hesapla girilirse
-  aynı varlıkları görür. Hesap silinirken cihazdaki varlıklar da silinir.
-- Detay ekranında gün aralığı ve dönem seçici yok. Grafik ve "Oturum aralığı"
-  uygulama açıkken gelen son 60 fiyattan çizilir.
+- Google ve Apple girişi yok (Supabase modunda düğmeler pasif). Dış hesap kurulumu ister.
+- Fiyatlar sahte.
+- Çevrimdışı çalışma yok: bağlantı yoksa değişiklik kaydedilmez, hata gösterilir ve
+  liste eski haline döner. Çıkış yapmak da bağlantı ister.
+- İki cihazdan aynı anda düzenleme: en son kaydeden kazanır.
+- Karanlık tema yok. Ayarlar'daki bildirim, uygulama kilidi ve bakiyeyi gizleme
+  anahtarları ekranda durur ama kaydedilmez ve bir işe bağlı değildir.
+- Profil'de e-posta ve fotoğraf değiştirilemez.
+- Detay ekranında gün aralığı ve dönem seçici yok. Grafik, uygulama açıkken gelen
+  son 60 fiyattan çizilir.
+- Sahte modda hesap silinince cihazdaki varlıklar kalır (yalnızca geliştirme modu).
 - iOS derlemesi Linux'ta yapılamaz. İlk iOS derlemesini bir Mac'te al.
