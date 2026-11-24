@@ -55,6 +55,45 @@ void main() {
     expect(netValue(holdings, quotes), closeTo(6177.0, 0.005));
   });
 
+  group('dayChange', () {
+    Quote qc(double buy, double change) => Quote(
+          symbol: 'X',
+          buy: buy,
+          sell: buy + 1,
+          changePercent: change,
+          updatedAt: DateTime(2026, 11, 16),
+        );
+
+    test('tek varlıkta yüzde fiyatın yüzdesine eşittir', () {
+      final r = dayChange(
+        [h('1', AssetKind.usd, 100)],
+        {AssetKind.usd: qc(41.18, 1.0)},
+      );
+      expect(r.percent, closeTo(1.0, 0.0001));
+      expect(r.amount, closeTo(4118.0 - 4118.0 / 1.01, 0.005));
+    });
+
+    test('artış ve düşüş birbirini götürür', () {
+      final r = dayChange(
+        [h('1', AssetKind.usd, 100), h('2', AssetKind.eur, 100)],
+        {AssetKind.usd: qc(10, 10), AssetKind.eur: qc(10, -8.3333333333)},
+      );
+      expect(r.amount, closeTo(0, 0.01));
+    });
+
+    test('boş portföyde sıfır döner', () {
+      final r = dayChange(const [], const {});
+      expect(r.amount, 0);
+      expect(r.percent, 0);
+    });
+
+    test('fiyatı olmayan varlık hesaba girmez', () {
+      final r = dayChange([h('1', AssetKind.halfGold, 2)], const {});
+      expect(r.amount, 0);
+      expect(r.percent, 0);
+    });
+  });
+
   test('rowValue miktarı alış fiyatıyla çarpar', () {
     expect(rowValue(h('1', AssetKind.usd, 2500), quotes),
         closeTo(102950.0, 0.005));

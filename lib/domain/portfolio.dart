@@ -8,6 +8,25 @@ double? rowValue(Holding h, Map<AssetKind, Quote> quotes) {
   return h.amount * quote.buy;
 }
 
+/// Bugünkü değişim: şu anki değerle günün açılış değeri arasındaki fark (TL)
+/// ve yüzdesi. Fiyatı olmayan kayıtlar hesaba girmez.
+({double amount, double percent}) dayChange(
+  List<Holding> holdings,
+  Map<AssetKind, Quote> quotes,
+) {
+  var now = 0.0;
+  var open = 0.0;
+  for (final h in holdings) {
+    final q = quotes[h.kind];
+    if (q == null) continue;
+    final value = h.amount * q.buy;
+    now += value;
+    open += value / (1 + q.changePercent / 100);
+  }
+  if (open == 0) return (amount: 0, percent: 0);
+  return (amount: now - open, percent: (now / open - 1) * 100);
+}
+
 /// Fiyatı bilinen tüm kayıtların toplam TL değeri.
 double netValue(List<Holding> holdings, Map<AssetKind, Quote> quotes) {
   var total = 0.0;

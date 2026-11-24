@@ -18,6 +18,22 @@ void main() {
     expect(formatRate(41.18), '41,1800');
   });
 
+  group('formatAmount', () {
+    test('tam sayıyı binlik noktayla yazar', () {
+      expect(formatAmount(2500), '2.500');
+    });
+    test('küsuratı virgülle yazar', () {
+      expect(formatAmount(40.5), '40,5');
+    });
+    test('çok büyük miktarı biçimler', () {
+      expect(formatAmount(999999999), '999.999.999');
+    });
+  });
+
+  test('formatMoney TL işareti olmadan iki ondalık yazar', () {
+    expect(formatMoney(4148), '4.148,00');
+  });
+
   test('formatPercent işaretsiz yüzde yazar', () {
     expect(formatPercent(0.62), '%0,62');
   });
