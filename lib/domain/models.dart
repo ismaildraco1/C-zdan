@@ -19,6 +19,29 @@ class Quote {
   final DateTime updatedAt;
 }
 
+/// Oturum açmış kullanıcının profil bilgileri.
+class UserProfile {
+  const UserProfile({
+    required this.firstName,
+    required this.lastName,
+    required this.email,
+    this.phone = '',
+  });
+
+  final String firstName;
+  final String lastName;
+  final String email;
+  final String phone;
+
+  String get initials {
+    final a = firstName.isEmpty ? '' : firstName[0];
+    final b = lastName.isEmpty ? '' : lastName[0];
+    return (a + b).toUpperCase();
+  }
+
+  String get fullName => '$firstName $lastName'.trim();
+}
+
 /// Kullanıcının portföyündeki tek bir kayıt.
 class Holding {
   const Holding({
