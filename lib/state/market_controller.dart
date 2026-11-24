@@ -24,6 +24,13 @@ class MarketController extends ChangeNotifier {
   Quote? _ons;
   DateTime? _lastUpdate;
 
+  static const _historyLimit = 60;
+  final Map<AssetKind, List<double>> _history = {};
+
+  /// Her tür için son 60 alış fiyatı (eskiden yeniye). Grafik bundan çizilir.
+  List<double> history(AssetKind kind) =>
+      List.unmodifiable(_history[kind] ?? const <double>[]);
+
   Map<AssetKind, Quote> get quotes => _quotes;
   Quote? get ons => _ons;
   DateTime? get lastUpdate => _lastUpdate;
@@ -37,8 +44,11 @@ class MarketController extends ChangeNotifier {
 
   void _onQuotes(Map<AssetKind, Quote> m) {
     _quotes = Map.unmodifiable(m);
-    for (final q in m.values) {
-      _touch(q.updatedAt);
+    for (final e in m.entries) {
+      _touch(e.value.updatedAt);
+      final list = _history.putIfAbsent(e.key, () => <double>[]);
+      list.add(e.value.buy);
+      if (list.length > _historyLimit) list.removeAt(0);
     }
     notifyListeners();
   }

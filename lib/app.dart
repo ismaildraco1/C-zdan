@@ -2,7 +2,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme.dart';
+import 'domain/models.dart';
 import 'state/auth_controller.dart';
+import 'ui/assets/detay.dart';
+import 'ui/assets/varlik_ekle.dart';
 import 'state/market_controller.dart';
 import 'state/portfolio_controller.dart';
 import 'ui/auth/giris.dart';
@@ -60,6 +63,10 @@ Route<dynamic>? _route(RouteSettings settings) {
   switch (settings.name) {
     case '/kayit':
       page = const KayitScreen();
+    case '/ekle':
+      page = VarlikEkleScreen(editing: settings.arguments as Holding?);
+    case '/detay':
+      page = DetayScreen(holding: settings.arguments as Holding);
     case '/sifre':
       page = const SifreScreen();
     case '/sifre-gonderildi':

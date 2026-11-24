@@ -28,6 +28,7 @@ class LabeledField extends StatelessWidget {
     this.error,
     this.onChanged,
     this.hint,
+    this.suffix,
     this.autofillHints,
   });
 
@@ -39,6 +40,7 @@ class LabeledField extends StatelessWidget {
   final String? error;
   final ValueChanged<String>? onChanged;
   final String? hint;
+  final String? suffix;
   final Iterable<String>? autofillHints;
 
   @override
@@ -69,6 +71,7 @@ class LabeledField extends StatelessWidget {
           style: const TextStyle(fontSize: 15),
           decoration: InputDecoration(
             hintText: hint,
+            suffixText: suffix,
             errorText: error,
             filled: true,
             fillColor: AppColors.card,

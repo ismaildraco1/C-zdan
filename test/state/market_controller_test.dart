@@ -44,6 +44,35 @@ void main() {
     market.dispose();
   });
 
+  group('history', () {
+    test('alış fiyatlarını sırayla biriktirir', () {
+      final feed = TestFeed();
+      final market = MarketController(feed);
+      expect(market.history(AssetKind.usd), isEmpty);
+
+      for (final v in [41.0, 41.1, 41.2]) {
+        feed.push({AssetKind.usd: quote('USD', v, at: t0)});
+      }
+
+      expect(market.history(AssetKind.usd), [41.0, 41.1, 41.2]);
+      expect(market.history(AssetKind.eur), isEmpty);
+      market.dispose();
+    });
+
+    test('en fazla 60 örnek tutar, en eskisini atar', () {
+      final feed = TestFeed();
+      final market = MarketController(feed);
+      for (var i = 0; i < 65; i++) {
+        feed.push({AssetKind.usd: quote('USD', 40.0 + i, at: t0)});
+      }
+      final h = market.history(AssetKind.usd);
+      expect(h, hasLength(60));
+      expect(h.first, 45.0);
+      expect(h.last, 104.0);
+      market.dispose();
+    });
+  });
+
   test('dinleyicilere haber verir', () {
     final feed = TestFeed();
     final market = MarketController(feed);
