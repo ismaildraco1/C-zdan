@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../domain/models.dart';
 
 export '../domain/models.dart' show UserProfile;
@@ -8,6 +10,15 @@ class AuthException implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// Kayıt oldu ama e-posta doğrulaması bekleniyor; oturum açılmadı.
+/// Bu bir hata değil, kullanıcıya "e-postanı doğrula" gösterilir.
+class EmailConfirmationRequired extends AuthException {
+  const EmailConfirmationRequired(this.email)
+    : super('E-postanı doğrulaman gerekiyor. Gelen kutunu kontrol et.');
+
+  final String email;
 }
 
 abstract class AuthRepository {
@@ -25,18 +36,47 @@ abstract class AuthRepository {
   Future<void> signOut();
   Future<void> deleteAccount();
   Future<UserProfile> updateProfile(UserProfile profile);
+
+  /// Oturumdaki kullanıcının şifresini değiştirir (şifre yenileme bağlantısıyla
+  /// gelen oturum da buna dahildir).
+  Future<void> updatePassword(String newPassword);
+
+  /// E-postadaki şifre yenileme bağlantısı uygulamayı açıp oturum kurduğunda
+  /// bir olay yayar.
+  Stream<void> get passwordRecovery;
 }
 
 class _Account {
-  _Account(this.password, this.profile);
+  _Account(this.password, this.profile, {this.confirmed = true});
   String password;
   UserProfile profile;
+  bool confirmed;
 }
 
 /// Bellekte çalışan sahte hesap servisi. Uygulama kapanınca hesaplar silinir.
 class FakeAuthRepository implements AuthRepository {
+  FakeAuthRepository({this.requireConfirmation = false});
+
+  /// Açıksa kayıt oturum açmaz ve e-posta doğrulaması ister (Supabase'in
+  /// varsayılan davranışı).
+  final bool requireConfirmation;
   final Map<String, _Account> _accounts = {};
+  final StreamController<void> _recovery = StreamController<void>.broadcast();
   String? _currentKey;
+
+  /// Testlerde e-posta doğrulamasını elle tamamlar.
+  void confirm(String email) => _accounts[_key(email)]?.confirmed = true;
+
+  /// Testlerde şifre yenileme bağlantısına tıklanmasını taklit eder.
+  Future<void> triggerRecovery(String email) async {
+    final key = _key(email);
+    if (!_accounts.containsKey(key)) return;
+    _currentKey = key;
+    _recovery.add(null);
+  }
+
+  @override
+  Stream<void> get passwordRecovery => _recovery.stream;
 
   static String _key(String email) => email.trim().toLowerCase();
 
@@ -52,6 +92,9 @@ class FakeAuthRepository implements AuthRepository {
     }
     if (account.password != password) {
       throw const AuthException('Şifre hatalı.');
+    }
+    if (!account.confirmed) {
+      throw EmailConfirmationRequired(account.profile.email);
     }
     _currentKey = _key(email);
     return account.profile;
@@ -73,7 +116,12 @@ class FakeAuthRepository implements AuthRepository {
       lastName: lastName.trim(),
       email: email.trim(),
     );
-    _accounts[key] = _Account(password, profile);
+    _accounts[key] = _Account(
+      password,
+      profile,
+      confirmed: !requireConfirmation,
+    );
+    if (requireConfirmation) throw EmailConfirmationRequired(profile.email);
     _currentKey = key;
     return profile;
   }
@@ -85,12 +133,14 @@ class FakeAuthRepository implements AuthRepository {
       _currentKey = email;
       return existing.profile;
     }
-    return signUp(
+    final profile = UserProfile(
       firstName: firstName,
       lastName: lastName,
       email: email,
-      password: 'sosyal-giris',
     );
+    _accounts[email] = _Account('sosyal-giris', profile);
+    _currentKey = email;
+    return profile;
   }
 
   @override
@@ -111,6 +161,17 @@ class FakeAuthRepository implements AuthRepository {
     if (key == null) throw const AuthException('Oturum açık değil.');
     _accounts.remove(key);
     _currentKey = null;
+  }
+
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    final key = _currentKey;
+    final account = key == null ? null : _accounts[key];
+    if (account == null) throw const AuthException('Oturum açık değil.');
+    if (newPassword.length < 8) {
+      throw const AuthException('Şifre en az 8 karakter olmalı.');
+    }
+    account.password = newPassword;
   }
 
   @override

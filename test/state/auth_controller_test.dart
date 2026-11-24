@@ -100,4 +100,63 @@ void main() {
     expect(await a.apple(), isTrue);
     expect(a.user, isNotNull);
   });
+
+  group('e-posta doğrulaması ve şifre yenileme', () {
+    test('doğrulama gerekiyorsa signUp false döner, hata değil bilgi bırakır',
+        () async {
+      final c = AuthController(FakeAuthRepository(requireConfirmation: true));
+      final ok = await c.signUp(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        password: '12345678',
+      );
+      expect(ok, isFalse);
+      expect(c.confirmationEmail, 'a@b.com');
+      expect(c.error, isNull);
+      expect(c.user, isNull);
+    });
+
+    test('yenileme bağlantısı recovering ve user ayarlar', () async {
+      final repo = FakeAuthRepository();
+      await repo.signUp(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        password: '12345678',
+      );
+      await repo.signOut();
+      final c = AuthController(repo);
+      expect(c.recovering, isFalse);
+
+      await repo.triggerRecovery('a@b.com');
+      await Future<void>.delayed(Duration.zero);
+
+      expect(c.recovering, isTrue);
+      expect(c.user?.email, 'a@b.com');
+    });
+
+    test('updatePassword başarılıysa recovering kapanır', () async {
+      final repo = FakeAuthRepository();
+      await repo.signUp(
+        firstName: 'A',
+        lastName: 'B',
+        email: 'a@b.com',
+        password: '12345678',
+      );
+      await repo.signOut();
+      final c = AuthController(repo);
+      await repo.triggerRecovery('a@b.com');
+      await Future<void>.delayed(Duration.zero);
+
+      expect(await c.updatePassword('yeni-sifre-1'), isTrue);
+      expect(c.recovering, isFalse);
+    });
+
+    test('kısa şifre updatePassword false döner ve hata yazar', () async {
+      final c = await signedUp();
+      expect(await c.updatePassword('kisa'), isFalse);
+      expect(c.error, isNotNull);
+    });
+  });
 }

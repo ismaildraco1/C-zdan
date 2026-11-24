@@ -1,19 +1,42 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/auth_repository.dart';
 
 /// Oturum durumunu ve giriş/kayıt işlemlerini yönetir.
 class AuthController extends ChangeNotifier {
-  AuthController(this._repo);
+  AuthController(this._repo) {
+    _recoverySub = _repo.passwordRecovery.listen((_) async {
+      _user = await _repo.currentUser();
+      _recovering = true;
+      notifyListeners();
+    });
+  }
 
   final AuthRepository _repo;
+  StreamSubscription<void>? _recoverySub;
   UserProfile? _user;
   String? _error;
   bool _busy = false;
+  bool _recovering = false;
+  String? _confirmationEmail;
 
   UserProfile? get user => _user;
   String? get error => _error;
   bool get busy => _busy;
+
+  /// Şifre yenileme bağlantısıyla oturum açıldı; yeni şifre belirlenene kadar
+  /// ana ekran açılmaz.
+  bool get recovering => _recovering;
+
+  /// Kayıt oldu ama e-posta doğrulaması bekleniyor: doğrulanacak adres.
+  String? get confirmationEmail => _confirmationEmail;
+
+  void clearConfirmation() {
+    _confirmationEmail = null;
+    notifyListeners();
+  }
 
   /// Uygulama açılırken var olan oturumu yükler.
   Future<void> restore() async {
@@ -29,14 +52,41 @@ class AuthController extends ChangeNotifier {
     required String lastName,
     required String email,
     required String password,
-  }) => _run(
-    () => _repo.signUp(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      password: password,
-    ),
-  );
+  }) async {
+    _begin();
+    _confirmationEmail = null;
+    try {
+      _user = await _repo.signUp(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        password: password,
+      );
+      return true;
+    } on EmailConfirmationRequired catch (e) {
+      _confirmationEmail = e.email;
+      return false;
+    } on AuthException catch (e) {
+      _error = e.message;
+      return false;
+    } finally {
+      _end();
+    }
+  }
+
+  Future<bool> updatePassword(String newPassword) async {
+    _begin();
+    try {
+      await _repo.updatePassword(newPassword);
+      _recovering = false;
+      return true;
+    } on AuthException catch (e) {
+      _error = e.message;
+      return false;
+    } finally {
+      _end();
+    }
+  }
 
   Future<bool> google() => _run(_repo.signInWithGoogle);
   Future<bool> apple() => _run(_repo.signInWithApple);
@@ -82,6 +132,12 @@ class AuthController extends ChangeNotifier {
     } finally {
       _end();
     }
+  }
+
+  @override
+  void dispose() {
+    _recoverySub?.cancel();
+    super.dispose();
   }
 
   Future<void> saveProfile(UserProfile profile) async {

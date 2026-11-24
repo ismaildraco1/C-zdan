@@ -81,4 +81,87 @@ void main() {
     expect((await FakeAuthRepository().signInWithGoogle()).email, isNotEmpty);
     expect((await FakeAuthRepository().signInWithApple()).email, isNotEmpty);
   });
+
+  group('e-posta doğrulaması', () {
+    test('requireConfirmation açıkken kayıt oturum açmaz', () async {
+      final repo = FakeAuthRepository(requireConfirmation: true);
+      await expectLater(
+        repo.signUp(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: '12345678',
+        ),
+        throwsA(isA<EmailConfirmationRequired>()),
+      );
+      expect(await repo.currentUser(), isNull);
+    });
+
+    test('doğrulanmamış hesap giriş yapamaz, doğrulanınca yapar', () async {
+      final repo = FakeAuthRepository(requireConfirmation: true);
+      try {
+        await repo.signUp(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: '12345678',
+        );
+      } on EmailConfirmationRequired {
+        // beklenen
+      }
+      await expectLater(
+        repo.signIn('a@b.com', '12345678'),
+        throwsA(isA<AuthException>()),
+      );
+      repo.confirm('a@b.com');
+      expect((await repo.signIn('a@b.com', '12345678')).email, 'a@b.com');
+    });
+  });
+
+  group('şifre yenileme', () {
+    test('triggerRecovery kullanıcıyı oturuma alır ve olay yayar', () async {
+      final repo = await registered();
+      await repo.signOut();
+      final events = <void>[];
+      final sub = repo.passwordRecovery.listen(events.add);
+
+      await repo.triggerRecovery('ayse.yilmaz@ornek.com');
+      await Future<void>.delayed(Duration.zero);
+
+      expect(events, hasLength(1));
+      expect((await repo.currentUser())?.email, 'ayse.yilmaz@ornek.com');
+      await sub.cancel();
+    });
+
+    test('updatePassword yeni şifreyi geçerli, eskisini geçersiz yapar',
+        () async {
+      final repo = await registered();
+      await repo.updatePassword('yeni-sifre-1');
+      await repo.signOut();
+
+      expect((await repo.signIn('ayse.yilmaz@ornek.com', 'yeni-sifre-1')).email,
+          'ayse.yilmaz@ornek.com');
+      await repo.signOut();
+      await expectLater(
+        repo.signIn('ayse.yilmaz@ornek.com', 'ornek-sifre'),
+        throwsA(isA<AuthException>()),
+      );
+    });
+
+    test('8 karakterden kısa yeni şifre reddedilir', () async {
+      final repo = await registered();
+      await expectLater(
+        repo.updatePassword('kisa'),
+        throwsA(isA<AuthException>()),
+      );
+    });
+
+    test('oturum yokken updatePassword reddedilir', () async {
+      final repo = FakeAuthRepository();
+      await expectLater(
+        repo.updatePassword('yeni-sifre-1'),
+        throwsA(isA<AuthException>()),
+      );
+    });
+  });
 }
