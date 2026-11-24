@@ -76,17 +76,6 @@ void main() {
     expect(portfolio.valueOf(portfolio.holdings.single), closeTo(480.6, 0.005));
   });
 
-  test('clear tüm varlıkları siler ve depoya yazar', () async {
-    await portfolio.add(AssetKind.usd, 100, '');
-    await portfolio.add(AssetKind.eur, 10, '');
-    await portfolio.clear();
-
-    expect(portfolio.holdings, isEmpty);
-    final fresh = PortfolioController(LocalHoldingsRepository(), market);
-    await fresh.load();
-    expect(fresh.holdings, isEmpty);
-  });
-
   test('boş portföyde toplam sıfırdır', () {
     expect(portfolio.total, 0);
     expect(portfolio.holdings, isEmpty);

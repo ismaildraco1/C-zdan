@@ -41,6 +41,10 @@ abstract class AuthRepository {
   /// gelen oturum da buna dahildir).
   Future<void> updatePassword(String newPassword);
 
+  /// Google ve Apple ile giriş bu uygulamada çalışıyor mu? Kapalıysa düğmeler
+  /// pasif gösterilir.
+  bool get supportsSocialLogin;
+
   /// E-postadaki şifre yenileme bağlantısı uygulamayı açıp oturum kurduğunda
   /// bir olay yayar.
   Stream<void> get passwordRecovery;
@@ -55,7 +59,15 @@ class _Account {
 
 /// Bellekte çalışan sahte hesap servisi. Uygulama kapanınca hesaplar silinir.
 class FakeAuthRepository implements AuthRepository {
-  FakeAuthRepository({this.requireConfirmation = false});
+  FakeAuthRepository({
+    this.requireConfirmation = false,
+    this.socialLogin = true,
+  });
+
+  final bool socialLogin;
+
+  @override
+  bool get supportsSocialLogin => socialLogin;
 
   /// Açıksa kayıt oturum açmaz ve e-posta doğrulaması ister (Supabase'in
   /// varsayılan davranışı).

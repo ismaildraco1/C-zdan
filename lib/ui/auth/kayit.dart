@@ -52,8 +52,13 @@ class _KayitScreenState extends State<KayitScreen> {
       password: _password.text,
     );
     if (!mounted) return;
+    final pending = auth.confirmationEmail;
     if (ok) {
       popToRoot(context);
+    } else if (pending != null) {
+      // Hata değil: hesap açıldı, e-posta doğrulaması bekleniyor.
+      auth.clearConfirmation();
+      Navigator.of(context).pushNamed('/dogrulama', arguments: pending);
     } else {
       setState(() => _authError = auth.error);
     }
@@ -207,7 +212,7 @@ class _KayitScreenState extends State<KayitScreen> {
                         Expanded(
                           child: SocialButton(
                             label: 'Google',
-                            onTap: auth.busy
+                            onTap: (auth.busy || !auth.supportsSocialLogin)
                                 ? null
                                 : () => _social(auth.google),
                           ),
@@ -217,11 +222,25 @@ class _KayitScreenState extends State<KayitScreen> {
                           child: SocialButton(
                             label: 'Apple',
                             dark: true,
-                            onTap: auth.busy ? null : () => _social(auth.apple),
+                            onTap: (auth.busy || !auth.supportsSocialLogin)
+                                ? null
+                                : () => _social(auth.apple),
                           ),
                         ),
                       ],
                     ),
+                    if (!auth.supportsSocialLogin)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: Text(
+                          'Google ve Apple ile giriş yakında.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 20),
                     Wrap(
                       alignment: WrapAlignment.center,

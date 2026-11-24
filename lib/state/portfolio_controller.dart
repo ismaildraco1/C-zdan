@@ -17,6 +17,7 @@ class PortfolioController extends ChangeNotifier {
   final MarketController _market;
   List<Holding> _holdings = const [];
   String? _error;
+  bool _loadFailed = false;
 
   /// Her `load`/`reset` sayacı artırır; geç gelen eski sonuç yok sayılır
   /// (çıkış yapıp başka hesapla girince öncekinin varlıkları görünmesin).
@@ -26,6 +27,9 @@ class PortfolioController extends ChangeNotifier {
 
   /// Son işlem başarısız olduysa kullanıcıya gösterilecek mesaj.
   String? get error => _error;
+
+  /// Varlıklar yüklenemedi (liste bilinmiyor): Portföy "Tekrar dene" sunar.
+  bool get loadFailed => _loadFailed;
   double get total => netValue(_holdings, _market.quotes);
 
   double? valueOf(Holding h) => rowValue(h, _market.quotes);
@@ -37,8 +41,10 @@ class PortfolioController extends ChangeNotifier {
       if (generation != _generation) return;
       _holdings = List.unmodifiable(loaded);
       _error = null;
+      _loadFailed = false;
     } catch (_) {
       if (generation != _generation) return;
+      _loadFailed = true;
       _error = 'Varlıkların yüklenemedi. Bağlantını kontrol edip tekrar dene.';
     }
     notifyListeners();
@@ -49,6 +55,7 @@ class PortfolioController extends ChangeNotifier {
     _generation++;
     _holdings = const [];
     _error = null;
+    _loadFailed = false;
     notifyListeners();
   }
 
@@ -71,9 +78,6 @@ class PortfolioController extends ChangeNotifier {
     for (final h in _holdings)
       if (h.id != id) h,
   ]);
-
-  /// Tüm varlıkları siler (hesap silinirken kullanılır).
-  Future<bool> clear() => _commit(const []);
 
   Future<bool> _commit(List<Holding> next) async {
     final previous = _holdings;

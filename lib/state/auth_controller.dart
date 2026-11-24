@@ -26,6 +26,9 @@ class AuthController extends ChangeNotifier {
   String? get error => _error;
   bool get busy => _busy;
 
+  /// Google ve Apple düğmeleri çalışıyor mu?
+  bool get supportsSocialLogin => _repo.supportsSocialLogin;
+
   /// Şifre yenileme bağlantısıyla oturum açıldı; yeni şifre belirlenene kadar
   /// ana ekran açılmaz.
   bool get recovering => _recovering;
@@ -108,6 +111,8 @@ class AuthController extends ChangeNotifier {
     await _repo.signOut();
     _user = null;
     _error = null;
+    _recovering = false;
+    _confirmationEmail = null;
     notifyListeners();
   }
 

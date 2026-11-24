@@ -10,10 +10,12 @@ import 'ui/assets/detay.dart';
 import 'ui/assets/varlik_ekle.dart';
 import 'state/market_controller.dart';
 import 'state/portfolio_controller.dart';
+import 'ui/auth/dogrulama.dart';
 import 'ui/auth/giris.dart';
 import 'ui/auth/kayit.dart';
 import 'ui/auth/sifre.dart';
 import 'ui/auth/sifre_gonderildi.dart';
+import 'ui/auth/yeni_sifre.dart';
 import 'ui/home/shell.dart';
 
 class CuzdanApp extends StatefulWidget {
@@ -37,6 +39,8 @@ class CuzdanApp extends StatefulWidget {
 class _CuzdanAppState extends State<CuzdanApp> {
   // Oturumdaki hesabın kimliği. Değişince varlıklar o hesaba göre yeniden yüklenir.
   String? _session;
+  bool _wasRecovering = false;
+  final _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -52,6 +56,14 @@ class _CuzdanAppState extends State<CuzdanApp> {
   }
 
   void _syncSession() {
+    // Şifre yenileme bağlantısı başka bir ekran açıkken gelebilir: açık ekranları
+    // kapat ki kök ("Yeni şifre belirle") görünsün.
+    final recovering = widget.auth.recovering;
+    if (recovering && !_wasRecovering) {
+      _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+    }
+    _wasRecovering = recovering;
+
     final id = widget.auth.user?.email;
     if (id == _session) return;
     _session = id;
@@ -74,6 +86,7 @@ class _CuzdanAppState extends State<CuzdanApp> {
       ],
       child: MaterialApp(
         title: 'Cüzdan',
+        navigatorKey: _navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: buildTheme(useGoogleFonts: widget.useGoogleFonts),
         home: const _Root(),
@@ -89,8 +102,9 @@ class _Root extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<AuthController>().user;
-    return user == null ? const GirisScreen() : const HomeShell();
+    final auth = context.watch<AuthController>();
+    if (auth.recovering) return const YeniSifreScreen(recovery: true);
+    return auth.user == null ? const GirisScreen() : const HomeShell();
   }
 }
 
@@ -109,6 +123,10 @@ Route<dynamic>? _route(RouteSettings settings) {
       page = const HesapSilScreen();
     case '/sifre':
       page = const SifreScreen();
+    case '/sifre-degistir':
+      page = const YeniSifreScreen(recovery: false);
+    case '/dogrulama':
+      page = DogrulamaScreen(email: settings.arguments as String);
     case '/sifre-gonderildi':
       page = SifreGonderildiScreen(email: settings.arguments as String);
     default:

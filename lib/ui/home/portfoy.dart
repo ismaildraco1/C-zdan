@@ -53,7 +53,12 @@ class PortfoyScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          if (holdings.isEmpty)
+          if (portfolio.loadFailed)
+            _LoadError(
+              message: portfolio.error ?? 'Varlıkların yüklenemedi. Bağlantını kontrol edip tekrar dene.',
+              onRetry: portfolio.load,
+            )
+          else if (holdings.isEmpty)
             const _EmptyState()
           else
             for (final h in holdings)
@@ -220,6 +225,35 @@ class _HoldingRow extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LoadError extends StatelessWidget {
+  const _LoadError({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      child: Column(
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 14,
+              color: AppColors.down,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextLink(label: 'Tekrar dene', onTap: onRetry),
+        ],
       ),
     );
   }

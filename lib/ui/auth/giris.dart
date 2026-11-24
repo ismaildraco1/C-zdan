@@ -126,14 +126,27 @@ class _GirisScreenState extends State<GirisScreen> {
               const SizedBox(height: 18),
               SocialButton(
                 label: 'Google ile devam et',
-                onTap: auth.busy ? null : () => auth.google(),
+                onTap: (auth.busy || !auth.supportsSocialLogin)
+                    ? null
+                    : () => auth.google(),
               ),
               const SizedBox(height: 10),
               SocialButton(
                 label: 'Apple ile devam et',
                 dark: true,
-                onTap: auth.busy ? null : () => auth.apple(),
+                onTap: (auth.busy || !auth.supportsSocialLogin)
+                    ? null
+                    : () => auth.apple(),
               ),
+              if (!auth.supportsSocialLogin)
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text(
+                    'Google ve Apple ile giriş yakında.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 13, color: AppColors.muted),
+                  ),
+                ),
               const SizedBox(height: 28),
               Wrap(
                 alignment: WrapAlignment.center,

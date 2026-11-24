@@ -89,6 +89,9 @@ class SupabaseAuthRepository implements AuthRepository {
   }
 
   @override
+  bool get supportsSocialLogin => false;
+
+  @override
   Future<UserProfile> signInWithGoogle() async =>
       throw const AuthException('Google ile giriş yakında gelecek.');
 

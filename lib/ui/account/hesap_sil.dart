@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme.dart';
 import '../../state/auth_controller.dart';
-import '../../state/portfolio_controller.dart';
 import '../widgets/buttons.dart';
 import '../widgets/fields.dart';
 import '../widgets/header.dart';
@@ -33,14 +32,14 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
 
   Future<void> _delete() async {
     final auth = context.read<AuthController>();
-    final portfolio = context.read<PortfolioController>();
     setState(() => _authError = null);
     final ok = await auth.deleteAccount(_typed.text);
     if (!ok) {
       if (mounted) setState(() => _authError = auth.error);
       return;
     }
-    await portfolio.clear();
+    // Varlıklar sunucuda hesapla birlikte silinir (on delete cascade); oturum
+    // kapanınca ekrandaki liste de kendiliğinden boşalır.
     if (mounted) popToRoot(context);
   }
 

@@ -132,6 +132,33 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     borderRadius: BorderRadius.circular(16),
                     child: Column(
                       children: [
+                        InkWell(
+                          onTap: () =>
+                              Navigator.of(context)
+                                  .pushNamed('/sifre-degistir'),
+                          child: Container(
+                            height: 50,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: const Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Şifreyi değiştir',
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right_rounded,
+                                  color: AppColors.muted,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 1, color: Color(0xFFE8ECE9)),
                         _DangerRow(label: 'Çıkış yap', onTap: _signOut),
                         const Divider(height: 1, color: Color(0xFFE8ECE9)),
                         _DangerRow(

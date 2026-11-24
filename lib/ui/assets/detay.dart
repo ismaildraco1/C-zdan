@@ -20,6 +20,7 @@ class DetayScreen extends StatelessWidget {
   Future<void> _confirmDelete(BuildContext context, Holding h) async {
     final portfolio = context.read<PortfolioController>();
     final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -41,8 +42,16 @@ class DetayScreen extends StatelessWidget {
       ),
     );
     if (ok == true) {
-      await portfolio.remove(h.id);
-      navigator.pop();
+      final removed = await portfolio.remove(h.id);
+      if (removed) {
+        navigator.pop();
+      } else {
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(portfolio.error ?? 'Değişiklik kaydedilemedi.'),
+          ),
+        );
+      }
     }
   }
 

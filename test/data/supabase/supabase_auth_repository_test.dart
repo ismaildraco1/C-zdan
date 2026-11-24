@@ -318,6 +318,10 @@ void main() {
     },
   );
 
+  test('sosyal giriş desteklenmediğini bildirir', () {
+    expect(repo.supportsSocialLogin, isFalse);
+  });
+
   test('Google ve Apple bu sürümde kapalıdır', () async {
     await expectLater(repo.signInWithGoogle(), throwsA(isA<AuthException>()));
     await expectLater(repo.signInWithApple(), throwsA(isA<AuthException>()));

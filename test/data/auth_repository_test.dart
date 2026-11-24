@@ -170,4 +170,9 @@ void main() {
       );
     });
   });
+
+  test('sosyal giriş sahte uygulamada varsayılan olarak açıktır', () {
+    expect(FakeAuthRepository().supportsSocialLogin, isTrue);
+    expect(FakeAuthRepository(socialLogin: false).supportsSocialLogin, isFalse);
+  });
 }

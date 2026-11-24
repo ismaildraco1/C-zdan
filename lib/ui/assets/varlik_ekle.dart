@@ -48,6 +48,7 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
   }
 
   bool _saving = false;
+  String? _saveError;
 
   bool get _isEdit => widget.editing != null;
   double? get _parsed => parseAmount(_amount.text);
@@ -62,15 +63,25 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
   Future<void> _save() async {
     final amount = _parsed;
     if (amount == null || _saving) return;
-    setState(() => _saving = true);
+    setState(() {
+      _saving = true;
+      _saveError = null;
+    });
     final portfolio = context.read<PortfolioController>();
     try {
-      if (_isEdit) {
-        await portfolio.update(widget.editing!.id, amount, _note.text.trim());
+      final ok = _isEdit
+          ? await portfolio.update(
+              widget.editing!.id,
+              amount,
+              _note.text.trim(),
+            )
+          : await portfolio.add(_kind, amount, _note.text.trim());
+      if (!mounted) return;
+      if (ok) {
+        Navigator.of(context).pop();
       } else {
-        await portfolio.add(_kind, amount, _note.text.trim());
+        setState(() => _saveError = portfolio.error);
       }
-      if (mounted) Navigator.of(context).pop();
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -172,6 +183,19 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
                     label: _isEdit ? 'Değişiklikleri kaydet' : 'Portföye ekle',
                     onPressed: (amount == null || _saving) ? null : _save,
                   ),
+                  if (_saveError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        _saveError!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.down,
+                        ),
+                      ),
+                    ),
                   if (reason != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
