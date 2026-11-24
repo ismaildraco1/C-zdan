@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../support/test_feed.dart';
+import '../support/flaky_repository.dart';
 
 void main() {
   late TestFeed feed;
@@ -87,5 +88,79 @@ void main() {
   test('boş portföyde toplam sıfırdır', () {
     expect(portfolio.total, 0);
     expect(portfolio.holdings, isEmpty);
+  });
+
+  group('depo hatası', () {
+    test(
+      'add başarısızsa liste geri döner, hata yazar ve false verir',
+      () async {
+        final repo = FlakyHoldingsRepository();
+        final p = PortfolioController(repo, market);
+        await p.load();
+        await p.add(AssetKind.usd, 100, '');
+        repo.failing = true;
+
+        final ok = await p.add(AssetKind.eur, 10, '');
+
+        expect(ok, isFalse);
+        expect(p.holdings.map((h) => h.kind), [AssetKind.usd]);
+        expect(
+          p.error,
+          'Değişiklik kaydedilemedi. Bağlantını kontrol edip tekrar dene.',
+        );
+      },
+    );
+
+    test('update ve remove başarısızsa eski haline döner', () async {
+      final repo = FlakyHoldingsRepository();
+      final p = PortfolioController(repo, market);
+      await p.load();
+      await p.add(AssetKind.usd, 100, 'a');
+      final id = p.holdings.single.id;
+      repo.failing = true;
+
+      expect(await p.update(id, 999, 'b'), isFalse);
+      expect(p.holdings.single.amount, 100);
+      expect(p.holdings.single.note, 'a');
+
+      expect(await p.remove(id), isFalse);
+      expect(p.holdings, hasLength(1));
+    });
+
+    test('sonraki başarılı işlem hatayı temizler', () async {
+      final repo = FlakyHoldingsRepository();
+      final p = PortfolioController(repo, market);
+      await p.load();
+      repo.failing = true;
+      await p.add(AssetKind.usd, 1, '');
+      expect(p.error, isNotNull);
+
+      repo.failing = false;
+      expect(await p.add(AssetKind.usd, 1, ''), isTrue);
+      expect(p.error, isNull);
+      expect(p.holdings, hasLength(1));
+    });
+
+    test('load başarısızsa liste boş kalır ve hata yazar', () async {
+      final repo = FlakyHoldingsRepository()..failing = true;
+      final p = PortfolioController(repo, market);
+      await p.load();
+      expect(p.holdings, isEmpty);
+      expect(p.error, isNotNull);
+    });
+  });
+
+  test('reset listeyi ve hatayı depoya yazmadan temizler', () async {
+    final repo = FlakyHoldingsRepository();
+    final p = PortfolioController(repo, market);
+    await p.load();
+    await p.add(AssetKind.usd, 1, '');
+    final saves = repo.saves;
+
+    p.reset();
+
+    expect(p.holdings, isEmpty);
+    expect(p.error, isNull);
+    expect(repo.saves, saves);
   });
 }

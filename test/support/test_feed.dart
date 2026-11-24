@@ -28,8 +28,7 @@ class TestFeed implements PriceFeed {
   }
 }
 
-Quote quote(String symbol, double buy,
-        {DateTime? at, double change = 0.1}) =>
+Quote quote(String symbol, double buy, {DateTime? at, double change = 0.1}) =>
     Quote(
       symbol: symbol,
       buy: buy,

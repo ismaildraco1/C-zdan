@@ -74,12 +74,14 @@ Future<Harness> pumpApp(
   addTearDown(tester.view.reset);
   addTearDown(market.dispose);
 
-  await tester.pumpWidget(CuzdanApp(
-    auth: auth,
-    market: market,
-    portfolio: portfolio,
-    useGoogleFonts: false,
-  ));
+  await tester.pumpWidget(
+    CuzdanApp(
+      auth: auth,
+      market: market,
+      portfolio: portfolio,
+      useGoogleFonts: false,
+    ),
+  );
   await tester.pumpAndSettle();
   return Harness(repo, feed, auth, market, portfolio);
 }

@@ -68,12 +68,14 @@ void main() {
   test('updateProfile oturumdaki kullanıcıyı günceller', () async {
     final repo = await registered();
     final current = (await repo.currentUser())!;
-    await repo.updateProfile(UserProfile(
-      firstName: 'Ayşegül',
-      lastName: current.lastName,
-      email: current.email,
-      phone: current.phone,
-    ));
+    await repo.updateProfile(
+      UserProfile(
+        firstName: 'Ayşegül',
+        lastName: current.lastName,
+        email: current.email,
+        phone: current.phone,
+      ),
+    );
     expect((await repo.currentUser())?.firstName, 'Ayşegül');
   });
 
@@ -133,20 +135,24 @@ void main() {
       await sub.cancel();
     });
 
-    test('updatePassword yeni şifreyi geçerli, eskisini geçersiz yapar',
-        () async {
-      final repo = await registered();
-      await repo.updatePassword('yeni-sifre-1');
-      await repo.signOut();
+    test(
+      'updatePassword yeni şifreyi geçerli, eskisini geçersiz yapar',
+      () async {
+        final repo = await registered();
+        await repo.updatePassword('yeni-sifre-1');
+        await repo.signOut();
 
-      expect((await repo.signIn('ayse.yilmaz@ornek.com', 'yeni-sifre-1')).email,
-          'ayse.yilmaz@ornek.com');
-      await repo.signOut();
-      await expectLater(
-        repo.signIn('ayse.yilmaz@ornek.com', 'ornek-sifre'),
-        throwsA(isA<AuthException>()),
-      );
-    });
+        expect(
+          (await repo.signIn('ayse.yilmaz@ornek.com', 'yeni-sifre-1')).email,
+          'ayse.yilmaz@ornek.com',
+        );
+        await repo.signOut();
+        await expectLater(
+          repo.signIn('ayse.yilmaz@ornek.com', 'ornek-sifre'),
+          throwsA(isA<AuthException>()),
+        );
+      },
+    );
 
     test('8 karakterden kısa yeni şifre reddedilir', () async {
       final repo = await registered();

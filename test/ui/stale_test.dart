@@ -37,8 +37,9 @@ Color? colorOf(WidgetTester tester, String text) =>
 void main() {
   final t0 = DateTime(2026, 11, 16, 14, 32);
 
-  testWidgets('bir dakika önceki fiyat bayattır: etiket ve soluk renk',
-      (tester) async {
+  testWidgets('bir dakika önceki fiyat bayattır: etiket ve soluk renk', (
+    tester,
+  ) async {
     await pumpBadge(
       tester,
       now: DateTime(2026, 11, 16, 14, 33),

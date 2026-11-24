@@ -27,8 +27,9 @@ void main() {
   }
 
   group('Varlık ekle', () {
-    testWidgets('USD ve 2.500 için önizleme 102.950,00 TL gösterir',
-        (tester) async {
+    testWidgets('USD ve 2.500 için önizleme 102.950,00 TL gösterir', (
+      tester,
+    ) async {
       await openEkle(tester);
       await pickUsd(tester);
       await tester.enterText(find.byKey(const Key('miktar')), '2.500');
@@ -44,14 +45,18 @@ void main() {
       ('harf', 'abc', 'Miktar 0’dan büyük bir sayı olmalı.'),
       ('negatif', '-5', 'Miktar 0’dan büyük bir sayı olmalı.'),
     ]) {
-      testWidgets('${c.$1} miktarda düğme pasif ve neden yazılı', (tester) async {
+      testWidgets('${c.$1} miktarda düğme pasif ve neden yazılı', (
+        tester,
+      ) async {
         final h = await openEkle(tester);
         await pickUsd(tester);
         await tester.enterText(find.byKey(const Key('miktar')), c.$2);
         await tester.pumpAndSettle();
 
-        expect(tester.widget<PrimaryButton>(saveButton('Portföye ekle')).onPressed,
-            isNull);
+        expect(
+          tester.widget<PrimaryButton>(saveButton('Portföye ekle')).onPressed,
+          isNull,
+        );
         expect(find.text(c.$3), findsOneWidget);
         expect(h.portfolio.holdings, isEmpty);
       });
@@ -72,8 +77,9 @@ void main() {
       expect(find.text('₺ 4.118,00'), findsWidgets);
     });
 
-    testWidgets('fiyat yokken önizleme tire gösterir ve eklenebilir',
-        (tester) async {
+    testWidgets('fiyat yokken önizleme tire gösterir ve eklenebilir', (
+      tester,
+    ) async {
       final h = await pumpApp(tester, signedIn: true);
       await tester.tap(find.byKey(const Key('nav-ekle')));
       await tester.pumpAndSettle();
@@ -97,8 +103,9 @@ void main() {
       expect(h.portfolio.holdings.single.amount, 0.5);
     });
 
-    testWidgets('yavaş kayıtta çift dokunuş varlığı iki kez eklemez',
-        (tester) async {
+    testWidgets('yavaş kayıtta çift dokunuş varlığı iki kez eklemez', (
+      tester,
+    ) async {
       final slow = SlowHoldingsRepository();
       final h = await pumpApp(tester, signedIn: true, holdingsRepo: slow);
       await tester.tap(find.byKey(const Key('nav-ekle')));
@@ -147,7 +154,9 @@ void main() {
       return h;
     }
 
-    testWidgets('miktar, değer ve alış/satış fiyatını gösterir', (tester) async {
+    testWidgets('miktar, değer ve alış/satış fiyatını gösterir', (
+      tester,
+    ) async {
       await openDetay(tester);
       expect(find.text('Elindeki 2.500 USD'), findsOneWidget);
       expect(find.text('₺ 102.950,00'), findsOneWidget);
@@ -157,8 +166,9 @@ void main() {
       expect(find.byKey(const Key('grafik')), findsOneWidget);
     });
 
-    testWidgets('yeterli veri yokken grafik yerine bilgi gösterir',
-        (tester) async {
+    testWidgets('yeterli veri yokken grafik yerine bilgi gösterir', (
+      tester,
+    ) async {
       final h = await pumpApp(tester, signedIn: true);
       await h.portfolio.add(AssetKind.usd, 100, '');
       h.feed.push({AssetKind.usd: quote('USD', 41.18, at: DateTime.now())});
@@ -181,8 +191,9 @@ void main() {
       expect(h.portfolio.holdings, hasLength(1));
     });
 
-    testWidgets('Varlığı sil onaylanınca kayıt kalkar ve Portföy’e dönülür',
-        (tester) async {
+    testWidgets('Varlığı sil onaylanınca kayıt kalkar ve Portföy’e dönülür', (
+      tester,
+    ) async {
       final h = await openDetay(tester);
       await tester.tap(find.text('Varlığı sil'));
       await tester.pumpAndSettle();
@@ -193,14 +204,20 @@ void main() {
       expect(find.text('İlk varlığını ekle'), findsOneWidget);
     });
 
-    testWidgets('Miktarı düzenle mevcut değerle açılır ve kaydeder',
-        (tester) async {
+    testWidgets('Miktarı düzenle mevcut değerle açılır ve kaydeder', (
+      tester,
+    ) async {
       final h = await openDetay(tester);
       await tester.tap(find.text('Miktarı düzenle'));
       await tester.pumpAndSettle();
 
-      expect(tester.widget<TextField>(find.byKey(const Key('miktar'))).controller!.text,
-          '2.500');
+      expect(
+        tester
+            .widget<TextField>(find.byKey(const Key('miktar')))
+            .controller!
+            .text,
+        '2.500',
+      );
       await tester.enterText(find.byKey(const Key('miktar')), '3000');
       await tester.pumpAndSettle();
       await tester.tap(saveButton('Değişiklikleri kaydet'));

@@ -29,8 +29,9 @@ void main() {
     expect(find.text('Apple ile devam et'), findsOneWidget);
   });
 
-  testWidgets('geçersiz e-postayla giriş hata gösterir ve oturum açmaz',
-      (tester) async {
+  testWidgets('geçersiz e-postayla giriş hata gösterir ve oturum açmaz', (
+    tester,
+  ) async {
     final h = await pumpApp(tester, registered: true);
     await tester.enterText(find.byKey(const Key('eposta')), 'abc');
     await tester.enterText(find.byKey(const Key('sifre')), 'ornek-sifre');
@@ -44,7 +45,9 @@ void main() {
   testWidgets('yanlış şifre hata mesajı gösterir', (tester) async {
     await pumpApp(tester, registered: true);
     await tester.enterText(
-        find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+      find.byKey(const Key('eposta')),
+      'ayse.yilmaz@ornek.com',
+    );
     await tester.enterText(find.byKey(const Key('sifre')), 'yanlis-sifre');
     await tester.tap(button('Giriş yap'));
     await tester.pumpAndSettle();
@@ -52,10 +55,14 @@ void main() {
     expect(find.text('Şifre hatalı.'), findsOneWidget);
   });
 
-  testWidgets('Girişteki şifre hatası Kayıt ekranında görünmez', (tester) async {
+  testWidgets('Girişteki şifre hatası Kayıt ekranında görünmez', (
+    tester,
+  ) async {
     await pumpApp(tester, registered: true);
     await tester.enterText(
-        find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+      find.byKey(const Key('eposta')),
+      'ayse.yilmaz@ornek.com',
+    );
     await tester.enterText(find.byKey(const Key('sifre')), 'yanlis-sifre');
     await tester.tap(button('Giriş yap'));
     await tester.pumpAndSettle();
@@ -69,7 +76,9 @@ void main() {
   testWidgets('doğru bilgilerle giriş ana ekranı açar', (tester) async {
     final h = await pumpApp(tester, registered: true);
     await tester.enterText(
-        find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+      find.byKey(const Key('eposta')),
+      'ayse.yilmaz@ornek.com',
+    );
     await tester.enterText(find.byKey(const Key('sifre')), 'ornek-sifre');
     await tester.tap(button('Giriş yap'));
     await tester.pumpAndSettle();
@@ -79,8 +88,9 @@ void main() {
     expect(button('Giriş yap'), findsNothing);
   });
 
-  testWidgets('oturum açıkken uygulama doğrudan ana ekranla açılır',
-      (tester) async {
+  testWidgets('oturum açıkken uygulama doğrudan ana ekranla açılır', (
+    tester,
+  ) async {
     await pumpApp(tester, signedIn: true);
     expect(find.text('Varlıklarım'), findsOneWidget);
   });
@@ -91,16 +101,22 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    Future<void> fill(WidgetTester tester, {String password = 'ornek-sifre'}) async {
+    Future<void> fill(
+      WidgetTester tester, {
+      String password = 'ornek-sifre',
+    }) async {
       await tester.enterText(find.byKey(const Key('ad')), 'Ayşe');
       await tester.enterText(find.byKey(const Key('soyad')), 'Yılmaz');
       await tester.enterText(
-          find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+        find.byKey(const Key('eposta')),
+        'ayse.yilmaz@ornek.com',
+      );
       await tester.enterText(find.byKey(const Key('sifre')), password);
     }
 
-    testWidgets('koşul kutusu işaretli değilken Hesap oluştur pasif',
-        (tester) async {
+    testWidgets('koşul kutusu işaretli değilken Hesap oluştur pasif', (
+      tester,
+    ) async {
       await pumpApp(tester);
       await openKayit(tester);
       expect(
@@ -151,14 +167,17 @@ void main() {
     });
   });
 
-  testWidgets('Şifremi unuttum akışı gönderildi ekranını gösterir',
-      (tester) async {
+  testWidgets('Şifremi unuttum akışı gönderildi ekranını gösterir', (
+    tester,
+  ) async {
     await pumpApp(tester, registered: true);
     await tester.tap(find.text('Şifremi unuttum'));
     await tester.pumpAndSettle();
 
     await tester.enterText(
-        find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+      find.byKey(const Key('eposta')),
+      'ayse.yilmaz@ornek.com',
+    );
     await tester.tap(button('Sıfırlama bağlantısı gönder'));
     await tester.pumpAndSettle();
 

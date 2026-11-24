@@ -7,14 +7,14 @@ import '../support/app_harness.dart';
 import '../support/test_feed.dart';
 
 Map<AssetKind, Quote> allQuotes({DateTime? at}) => {
-      AssetKind.gramGold: quote('GRAM', 4148, at: at, change: 0.84),
-      AssetKind.quarterGold: quote('CEYREK', 6940, at: at, change: 0.79),
-      AssetKind.halfGold: quote('YARIM', 13880, at: at),
-      AssetKind.fullGold: quote('TAM', 27760, at: at),
-      AssetKind.usd: quote('USD', 41.18, at: at, change: 0.21),
-      AssetKind.eur: quote('EUR', 48.06, at: at, change: -0.12),
-      AssetKind.gbp: quote('GBP', 55.24, at: at, change: 0.33),
-    };
+  AssetKind.gramGold: quote('GRAM', 4148, at: at, change: 0.84),
+  AssetKind.quarterGold: quote('CEYREK', 6940, at: at, change: 0.79),
+  AssetKind.halfGold: quote('YARIM', 13880, at: at),
+  AssetKind.fullGold: quote('TAM', 27760, at: at),
+  AssetKind.usd: quote('USD', 41.18, at: at, change: 0.21),
+  AssetKind.eur: quote('EUR', 48.06, at: at, change: -0.12),
+  AssetKind.gbp: quote('GBP', 55.24, at: at, change: 0.33),
+};
 
 Future<Harness> pumpWithSamplePortfolio(WidgetTester tester) async {
   final h = await pumpApp(tester, signedIn: true);
@@ -60,8 +60,9 @@ void main() {
       expect(find.text('İlk varlığını ekle'), findsOneWidget);
     });
 
-    testWidgets('fiyat yokken satır değeri tire olur, çökme olmaz',
-        (tester) async {
+    testWidgets('fiyat yokken satır değeri tire olur, çökme olmaz', (
+      tester,
+    ) async {
       final h = await pumpApp(tester, signedIn: true);
       await h.portfolio.add(AssetKind.usd, 100, '');
       await tester.pumpAndSettle();
@@ -82,8 +83,9 @@ void main() {
 
     testWidgets('fiyat bayatsa Son güncelleme etiketi görünür', (tester) async {
       final h = await pumpApp(tester, signedIn: true);
-      h.feed.push(allQuotes(
-          at: DateTime.now().subtract(const Duration(minutes: 2))));
+      h.feed.push(
+        allQuotes(at: DateTime.now().subtract(const Duration(minutes: 2))),
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('Son güncelleme'), findsWidgets);
@@ -111,8 +113,9 @@ void main() {
       return h;
     }
 
-    testWidgets('Tümü filtresi altın ve dövizi birlikte gösterir',
-        (tester) async {
+    testWidgets('Tümü filtresi altın ve dövizi birlikte gösterir', (
+      tester,
+    ) async {
       await openPiyasa(tester);
       expect(find.text('Gram Altın'), findsOneWidget);
       expect(find.text('Ons Altın'), findsOneWidget);
@@ -121,8 +124,9 @@ void main() {
       expect(find.text('4.148,00'), findsOneWidget);
     });
 
-    testWidgets('Altın filtresi yalnızca altın satırlarını bırakır',
-        (tester) async {
+    testWidgets('Altın filtresi yalnızca altın satırlarını bırakır', (
+      tester,
+    ) async {
       await openPiyasa(tester);
       await tester.tap(find.text('Altın'));
       await tester.pumpAndSettle();

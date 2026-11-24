@@ -38,7 +38,9 @@ class SupabaseAuthRepository implements AuthRepository {
     } on AuthException {
       rethrow;
     } catch (e) {
-      if (email != null && e is sb.AuthException && e.code == 'email_not_confirmed') {
+      if (email != null &&
+          e is sb.AuthException &&
+          e.code == 'email_not_confirmed') {
         throw EmailConfirmationRequired(email);
       }
       throw AuthException(turkishAuthMessage(e));
@@ -57,7 +59,9 @@ class SupabaseAuthRepository implements AuthRepository {
     return _guard(() async {
       final r = await _auth.signInWithPassword(email: mail, password: password);
       final u = r.user;
-      if (u == null) throw const AuthException('Bir şeyler ters gitti. Tekrar dene.');
+      if (u == null) {
+        throw const AuthException('Bir şeyler ters gitti. Tekrar dene.');
+      }
       return _profile(u);
     }, email: mail);
   }
@@ -131,9 +135,8 @@ class SupabaseAuthRepository implements AuthRepository {
   });
 
   @override
-  Future<void> updatePassword(String newPassword) => _guard(
-    () => _auth.updateUser(sb.UserAttributes(password: newPassword)),
-  );
+  Future<void> updatePassword(String newPassword) =>
+      _guard(() => _auth.updateUser(sb.UserAttributes(password: newPassword)));
 
   @override
   Stream<void> get passwordRecovery => _auth.onAuthStateChange

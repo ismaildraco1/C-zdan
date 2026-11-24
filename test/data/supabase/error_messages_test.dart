@@ -10,7 +10,13 @@ void main() {
 
   test('yanlış şifre ve bilinmeyen e-posta aynı mesajı verir', () {
     expect(
-      msg(const sb.AuthApiException('x', statusCode: '400', code: 'invalid_credentials')),
+      msg(
+        const sb.AuthApiException(
+          'x',
+          statusCode: '400',
+          code: 'invalid_credentials',
+        ),
+      ),
       'E-posta ya da şifre hatalı.',
     );
   });
@@ -27,20 +33,35 @@ void main() {
 
   test('doğrulanmamış e-posta', () {
     expect(
-      msg(const sb.AuthApiException('x', statusCode: '400', code: 'email_not_confirmed')),
+      msg(
+        const sb.AuthApiException(
+          'x',
+          statusCode: '400',
+          code: 'email_not_confirmed',
+        ),
+      ),
       'E-postanı doğrulaman gerekiyor. Gelen kutunu kontrol et.',
     );
   });
 
   test('zayıf şifre', () {
     expect(
-      msg(const sb.AuthApiException('x', statusCode: '422', code: 'weak_password')),
+      msg(
+        const sb.AuthApiException(
+          'x',
+          statusCode: '422',
+          code: 'weak_password',
+        ),
+      ),
       'Şifre çok zayıf. Daha uzun ya da daha karmaşık bir şifre dene.',
     );
   });
 
   test('istek sınırı', () {
-    for (final code in ['over_request_rate_limit', 'over_email_send_rate_limit']) {
+    for (final code in [
+      'over_request_rate_limit',
+      'over_email_send_rate_limit',
+    ]) {
       expect(
         msg(sb.AuthApiException('x', statusCode: '429', code: code)),
         'Çok fazla deneme yapıldı. Biraz sonra tekrar dene.',
@@ -63,6 +84,9 @@ void main() {
   test('bilinmeyen hata ham metni göstermez', () {
     const generic = 'Bir şeyler ters gitti. Tekrar dene.';
     expect(msg(StateError('içerideki ayrıntı')), generic);
-    expect(msg(const sb.AuthApiException('SQL hatası xyz', statusCode: '500')), generic);
+    expect(
+      msg(const sb.AuthApiException('SQL hatası xyz', statusCode: '500')),
+      generic,
+    );
   });
 }

@@ -68,8 +68,11 @@ void main() {
     });
     test('formatAmount çıktısı geri okunduğunda aynı sayıyı verir', () {
       for (final v in [0.5, 40.5, 2500, 1234567.89, 999999999]) {
-        expect(parseAmount(formatAmount(v.toDouble())), closeTo(v, 0.0001),
-            reason: '$v');
+        expect(
+          parseAmount(formatAmount(v.toDouble())),
+          closeTo(v, 0.0001),
+          reason: '$v',
+        );
       }
     });
     test('boş girişi reddeder', () {

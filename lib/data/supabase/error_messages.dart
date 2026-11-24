@@ -11,8 +11,12 @@ const _generic = 'Bir şeyler ters gitti. Tekrar dene.';
 /// Ham sunucu metni ve iç ayrıntı asla gösterilmez. Yanlış şifre ile bilinmeyen
 /// e-posta aynı mesajı verir, böylece hangi e-postaların kayıtlı olduğu sızmaz.
 String turkishAuthMessage(Object error) {
-  if (error is sb.AuthRetryableFetchException) return _network;
-  if (error is SocketException || error is http.ClientException) return _network;
+  if (error is sb.AuthRetryableFetchException) {
+    return _network;
+  }
+  if (error is SocketException || error is http.ClientException) {
+    return _network;
+  }
   if (error is sb.AuthException) {
     switch (error.code) {
       case 'invalid_credentials':

@@ -39,12 +39,15 @@ void main() {
     expect(c.user, isNotNull);
   });
 
-  test('deleteAccount e-posta eşleşirse (harf ve boşluktan bağımsız) true', () async {
-    final c = await signedUp();
-    final ok = await c.deleteAccount('  AYSE@ORNEK.COM ');
-    expect(ok, isTrue);
-    expect(c.user, isNull);
-  });
+  test(
+    'deleteAccount e-posta eşleşirse (harf ve boşluktan bağımsız) true',
+    () async {
+      final c = await signedUp();
+      final ok = await c.deleteAccount('  AYSE@ORNEK.COM ');
+      expect(ok, isTrue);
+      expect(c.user, isNull);
+    },
+  );
 
   test('deleteAccount e-posta eşleşmezse false ve hesap silinmez', () async {
     final c = await signedUp();
@@ -57,12 +60,14 @@ void main() {
 
   test('saveProfile kullanıcıyı günceller', () async {
     final c = await signedUp();
-    await c.saveProfile(UserProfile(
-      firstName: 'Ayşegül',
-      lastName: 'Yılmaz',
-      email: 'ayse@ornek.com',
-      phone: '0532 000 00 00',
-    ));
+    await c.saveProfile(
+      UserProfile(
+        firstName: 'Ayşegül',
+        lastName: 'Yılmaz',
+        email: 'ayse@ornek.com',
+        phone: '0532 000 00 00',
+      ),
+    );
     expect(c.user?.firstName, 'Ayşegül');
     expect(c.user?.phone, '0532 000 00 00');
   });
@@ -102,20 +107,22 @@ void main() {
   });
 
   group('e-posta doğrulaması ve şifre yenileme', () {
-    test('doğrulama gerekiyorsa signUp false döner, hata değil bilgi bırakır',
-        () async {
-      final c = AuthController(FakeAuthRepository(requireConfirmation: true));
-      final ok = await c.signUp(
-        firstName: 'A',
-        lastName: 'B',
-        email: 'a@b.com',
-        password: '12345678',
-      );
-      expect(ok, isFalse);
-      expect(c.confirmationEmail, 'a@b.com');
-      expect(c.error, isNull);
-      expect(c.user, isNull);
-    });
+    test(
+      'doğrulama gerekiyorsa signUp false döner, hata değil bilgi bırakır',
+      () async {
+        final c = AuthController(FakeAuthRepository(requireConfirmation: true));
+        final ok = await c.signUp(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: '12345678',
+        );
+        expect(ok, isFalse);
+        expect(c.confirmationEmail, 'a@b.com');
+        expect(c.error, isNull);
+        expect(c.user, isNull);
+      },
+    );
 
     test('yenileme bağlantısı recovering ve user ayarlar', () async {
       final repo = FakeAuthRepository();

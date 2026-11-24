@@ -4,12 +4,12 @@ import 'package:cuzdan/domain/portfolio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Quote q(String symbol, double buy) => Quote(
-      symbol: symbol,
-      buy: buy,
-      sell: buy + 1,
-      changePercent: 0.1,
-      updatedAt: DateTime(2026, 11, 16, 14, 32),
-    );
+  symbol: symbol,
+  buy: buy,
+  sell: buy + 1,
+  changePercent: 0.1,
+  updatedAt: DateTime(2026, 11, 16, 14, 32),
+);
 
 Holding h(String id, AssetKind kind, double amount) =>
     Holding(id: id, kind: kind, amount: amount, note: '');
@@ -48,21 +48,18 @@ void main() {
   });
 
   test('aynı türden iki varlık da toplamda sayılır', () {
-    final holdings = [
-      h('1', AssetKind.usd, 100),
-      h('2', AssetKind.usd, 50),
-    ];
+    final holdings = [h('1', AssetKind.usd, 100), h('2', AssetKind.usd, 50)];
     expect(netValue(holdings, quotes), closeTo(6177.0, 0.005));
   });
 
   group('dayChange', () {
     Quote qc(double buy, double change) => Quote(
-          symbol: 'X',
-          buy: buy,
-          sell: buy + 1,
-          changePercent: change,
-          updatedAt: DateTime(2026, 11, 16),
-        );
+      symbol: 'X',
+      buy: buy,
+      sell: buy + 1,
+      changePercent: change,
+      updatedAt: DateTime(2026, 11, 16),
+    );
 
     test('tek varlıkta yüzde fiyatın yüzdesine eşittir', () {
       final r = dayChange(
@@ -95,7 +92,9 @@ void main() {
   });
 
   test('rowValue miktarı alış fiyatıyla çarpar', () {
-    expect(rowValue(h('1', AssetKind.usd, 2500), quotes),
-        closeTo(102950.0, 0.005));
+    expect(
+      rowValue(h('1', AssetKind.usd, 2500), quotes),
+      closeTo(102950.0, 0.005),
+    );
   });
 }

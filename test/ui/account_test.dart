@@ -51,8 +51,9 @@ void main() {
       }
     });
 
-    testWidgets('fiyat kaynağı olarak gerçekte bağlı akışı yazar',
-        (tester) async {
+    testWidgets('fiyat kaynağı olarak gerçekte bağlı akışı yazar', (
+      tester,
+    ) async {
       await openAyarlar(tester);
       expect(find.text('Test fiyatları'), findsOneWidget);
       expect(find.text('Harem Altın'), findsNothing);
@@ -60,8 +61,9 @@ void main() {
   });
 
   group('Kullanıcı bilgileri', () {
-    testWidgets('ad değişip kaydedilince Ayarlar kartında görünür',
-        (tester) async {
+    testWidgets('ad değişip kaydedilince Ayarlar kartında görünür', (
+      tester,
+    ) async {
       final h = await openProfil(tester);
       expect(find.text('Kullanıcı bilgileri'), findsOneWidget);
 
@@ -75,7 +77,10 @@ void main() {
 
     testWidgets('telefon kaydedilir', (tester) async {
       final h = await openProfil(tester);
-      await tester.enterText(find.byKey(const Key('telefon')), '0532 000 00 00');
+      await tester.enterText(
+        find.byKey(const Key('telefon')),
+        '0532 000 00 00',
+      );
       await tester.tap(btn('Değişiklikleri kaydet'));
       await tester.pumpAndSettle();
       expect(h.auth.user?.phone, '0532 000 00 00');
@@ -117,7 +122,9 @@ void main() {
     }
 
     bool enabled(WidgetTester tester) =>
-        tester.widget<PrimaryButton>(btn('Hesabı kalıcı olarak sil')).onPressed !=
+        tester
+            .widget<PrimaryButton>(btn('Hesabı kalıcı olarak sil'))
+            .onPressed !=
         null;
 
     testWidgets('e-posta eşleşmeden düğme pasif', (tester) async {
@@ -130,11 +137,14 @@ void main() {
       expect(enabled(tester), isFalse);
     });
 
-    testWidgets('harf ve boşluğa duyarsız eşleşince silinir, Giriş açılır',
-        (tester) async {
+    testWidgets('harf ve boşluğa duyarsız eşleşince silinir, Giriş açılır', (
+      tester,
+    ) async {
       final h = await openHesapSil(tester);
       await tester.enterText(
-          find.byKey(const Key('onay')), '  AYSE.YILMAZ@ORNEK.COM ');
+        find.byKey(const Key('onay')),
+        '  AYSE.YILMAZ@ORNEK.COM ',
+      );
       await tester.pumpAndSettle();
       expect(enabled(tester), isTrue);
 

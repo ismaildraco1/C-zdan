@@ -16,42 +16,70 @@ class PortfolioController extends ChangeNotifier {
   final HoldingsRepository _repo;
   final MarketController _market;
   List<Holding> _holdings = const [];
+  String? _error;
 
   List<Holding> get holdings => _holdings;
+
+  /// Son işlem başarısız olduysa kullanıcıya gösterilecek mesaj.
+  String? get error => _error;
   double get total => netValue(_holdings, _market.quotes);
 
   double? valueOf(Holding h) => rowValue(h, _market.quotes);
 
   Future<void> load() async {
-    _holdings = List.unmodifiable(await _repo.load());
+    try {
+      _holdings = List.unmodifiable(await _repo.load());
+      _error = null;
+    } catch (_) {
+      _error = 'Varlıkların yüklenemedi. Bağlantını kontrol edip tekrar dene.';
+    }
     notifyListeners();
   }
 
-  Future<void> add(AssetKind kind, double amount, String note) async {
+  /// Oturum kapanınca listeyi ve hatayı temizler. Depoya yazmaz.
+  void reset() {
+    _holdings = const [];
+    _error = null;
+    notifyListeners();
+  }
+
+  /// Değişiklikler başarılıysa `true` döner. Depo hata verirse liste eski haline
+  /// döner, [error] dolar ve `false` döner.
+  Future<bool> add(AssetKind kind, double amount, String note) async {
     final id = newId();
-    await _commit([
+    return _commit([
       ..._holdings,
       Holding(id: id, kind: kind, amount: amount, note: note),
     ]);
   }
 
-  Future<void> update(String id, double amount, String note) => _commit([
+  Future<bool> update(String id, double amount, String note) => _commit([
     for (final h in _holdings)
       h.id == id ? h.copyWith(amount: amount, note: note) : h,
   ]);
 
-  Future<void> remove(String id) => _commit([
+  Future<bool> remove(String id) => _commit([
     for (final h in _holdings)
       if (h.id != id) h,
   ]);
 
   /// Tüm varlıkları siler (hesap silinirken kullanılır).
-  Future<void> clear() => _commit(const []);
+  Future<bool> clear() => _commit(const []);
 
-  Future<void> _commit(List<Holding> next) async {
+  Future<bool> _commit(List<Holding> next) async {
+    final previous = _holdings;
     _holdings = List.unmodifiable(next);
+    _error = null;
     notifyListeners();
-    await _repo.save(next);
+    try {
+      await _repo.save(next);
+      return true;
+    } catch (_) {
+      _holdings = previous;
+      _error = 'Değişiklik kaydedilemedi. Bağlantını kontrol edip tekrar dene.';
+      notifyListeners();
+      return false;
+    }
   }
 
   @override
