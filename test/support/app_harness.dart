@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:cuzdan/app.dart';
@@ -21,6 +22,17 @@ class MemoryHoldingsRepository implements HoldingsRepository {
   Future<void> save(List<Holding> holdings) async => _data = List.of(holdings);
 }
 
+/// `save` ancak `gate` tamamlanınca biter: yavaş bir depolamayı taklit eder.
+class SlowHoldingsRepository implements HoldingsRepository {
+  final Completer<void> gate = Completer<void>();
+
+  @override
+  Future<List<Holding>> load() async => [];
+
+  @override
+  Future<void> save(List<Holding> holdings) => gate.future;
+}
+
 class Harness {
   Harness(this.repo, this.feed, this.auth, this.market, this.portfolio);
   final FakeAuthRepository repo;
@@ -35,6 +47,7 @@ Future<Harness> pumpApp(
   WidgetTester tester, {
   bool registered = false,
   bool signedIn = false,
+  HoldingsRepository? holdingsRepo,
 }) async {
   final repo = FakeAuthRepository();
   if (registered || signedIn) {
@@ -48,7 +61,10 @@ Future<Harness> pumpApp(
   }
   final feed = TestFeed();
   final market = MarketController(feed);
-  final portfolio = PortfolioController(MemoryHoldingsRepository(), market);
+  final portfolio = PortfolioController(
+    holdingsRepo ?? MemoryHoldingsRepository(),
+    market,
+  );
   final auth = AuthController(repo);
   await portfolio.load();
   await auth.restore();

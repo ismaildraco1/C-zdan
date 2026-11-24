@@ -29,7 +29,9 @@ class PrimaryButton extends StatelessWidget {
           foregroundColor: fg,
           disabledBackgroundColor: bg.withValues(alpha: 0.35),
           disabledForegroundColor: fg.withValues(alpha: 0.6),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: Text(
           label,
@@ -64,8 +66,12 @@ class SocialButton extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           backgroundColor: dark ? AppColors.ink : AppColors.card,
           foregroundColor: dark ? Colors.white : AppColors.ink,
-          side: BorderSide(color: dark ? AppColors.ink : const Color(0xFFD5DCD7)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          side: BorderSide(
+            color: dark ? AppColors.ink : const Color(0xFFD5DCD7),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         child: Text(
           label,
@@ -78,7 +84,12 @@ class SocialButton extends StatelessWidget {
 
 /// Metin bağlantısı. Dokunma alanı en az 44 px yüksekliktedir.
 class TextLink extends StatelessWidget {
-  const TextLink({super.key, required this.label, required this.onTap, this.color});
+  const TextLink({
+    super.key,
+    required this.label,
+    required this.onTap,
+    this.color,
+  });
 
   final String label;
   final VoidCallback onTap;

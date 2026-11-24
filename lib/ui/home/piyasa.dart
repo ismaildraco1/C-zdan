@@ -146,8 +146,14 @@ class _TableHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text('ÜRÜN', style: style)),
-          SizedBox(width: 92, child: Text('ALIŞ', textAlign: TextAlign.right, style: style)),
-          SizedBox(width: 92, child: Text('SATIŞ', textAlign: TextAlign.right, style: style)),
+          SizedBox(
+            width: 92,
+            child: Text('ALIŞ', textAlign: TextAlign.right, style: style),
+          ),
+          SizedBox(
+            width: 92,
+            child: Text('SATIŞ', textAlign: TextAlign.right, style: style),
+          ),
         ],
       ),
     );
@@ -176,11 +182,15 @@ class _MarketRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(row.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                        fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(
+                  row.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 if (q != null)
                   Text(
                     changeText(q.changePercent, formatPercent(q.changePercent)),
@@ -195,13 +205,19 @@ class _MarketRow extends StatelessWidget {
           ),
           SizedBox(
             width: 92,
-            child: Text(q == null ? '—' : price(q.buy),
-                textAlign: TextAlign.right, style: priceStyle),
+            child: Text(
+              q == null ? '—' : price(q.buy),
+              textAlign: TextAlign.right,
+              style: priceStyle,
+            ),
           ),
           SizedBox(
             width: 92,
-            child: Text(q == null ? '—' : price(q.sell),
-                textAlign: TextAlign.right, style: priceStyle),
+            child: Text(
+              q == null ? '—' : price(q.sell),
+              textAlign: TextAlign.right,
+              style: priceStyle,
+            ),
           ),
         ],
       ),

@@ -38,8 +38,11 @@ class SifreGonderildiScreen extends StatelessWidget {
                     color: Color(0xFFE3EBE6),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.mail_outline_rounded,
-                      size: 34, color: AppColors.green),
+                  child: const Icon(
+                    Icons.mail_outline_rounded,
+                    size: 34,
+                    color: AppColors.green,
+                  ),
                 ),
               ),
               const SizedBox(height: 14),
@@ -53,7 +56,10 @@ class SifreGonderildiScreen extends StatelessWidget {
                 '$email adresine şifre yenileme bağlantısı yolladık. Birkaç dakika içinde gelmezse gereksiz klasörüne de bak.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontSize: 15, color: AppColors.muted, height: 1.55),
+                  fontSize: 15,
+                  color: AppColors.muted,
+                  height: 1.55,
+                ),
               ),
               const SizedBox(height: 32),
               PrimaryButton(

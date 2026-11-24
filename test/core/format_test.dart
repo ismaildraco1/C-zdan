@@ -48,6 +48,30 @@ void main() {
     test('virgülü ondalık sayar', () {
       expect(parseAmount('2.500,5'), 2500.5);
     });
+    test('0.5 gibi noktalı küsurat binlik sayılmaz', () {
+      expect(parseAmount('0.5'), 0.5);
+    });
+    test('2.5 küsurat olarak okunur', () {
+      expect(parseAmount('2.5'), 2.5);
+    });
+    test('40.75 küsurat olarak okunur', () {
+      expect(parseAmount('40.75'), 40.75);
+    });
+    test('birden çok binlik noktası ve virgüllü küsurat okunur', () {
+      expect(parseAmount('1.234.567,89'), 1234567.89);
+    });
+    test('0 ile başlayan 0.500 yarım olarak okunur, beş yüz değil', () {
+      expect(parseAmount('0.500'), 0.5);
+    });
+    test('virgüllü küsurat okunur', () {
+      expect(parseAmount('1,5'), 1.5);
+    });
+    test('formatAmount çıktısı geri okunduğunda aynı sayıyı verir', () {
+      for (final v in [0.5, 40.5, 2500, 1234567.89, 999999999]) {
+        expect(parseAmount(formatAmount(v.toDouble())), closeTo(v, 0.0001),
+            reason: '$v');
+      }
+    });
     test('boş girişi reddeder', () {
       expect(parseAmount(''), isNull);
     });

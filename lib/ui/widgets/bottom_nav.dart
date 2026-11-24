@@ -29,13 +29,28 @@ class AppBottomNav extends StatelessWidget {
           height: 64,
           child: Row(
             children: [
-              _item('nav-portfoy', Icons.account_balance_wallet_outlined,
-                  'Portföy', index == 0, () => onTab(0)),
-              _item('nav-piyasa', Icons.show_chart_rounded, 'Piyasa',
-                  index == 1, () => onTab(1)),
+              _item(
+                'nav-portfoy',
+                Icons.account_balance_wallet_outlined,
+                'Portföy',
+                index == 0,
+                () => onTab(0),
+              ),
+              _item(
+                'nav-piyasa',
+                Icons.show_chart_rounded,
+                'Piyasa',
+                index == 1,
+                () => onTab(1),
+              ),
               _add(),
-              _item('nav-ayarlar', Icons.tune_rounded, 'Ayarlar', index == 2,
-                  () => onTab(2)),
+              _item(
+                'nav-ayarlar',
+                Icons.tune_rounded,
+                'Ayarlar',
+                index == 2,
+                () => onTab(2),
+              ),
             ],
           ),
         ),
@@ -43,8 +58,13 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _item(String id, IconData icon, String label, bool active,
-      VoidCallback onTap) {
+  Widget _item(
+    String id,
+    IconData icon,
+    String label,
+    bool active,
+    VoidCallback onTap,
+  ) {
     final color = active ? AppColors.green : AppColors.muted;
     return Expanded(
       child: InkWell(
@@ -84,15 +104,20 @@ class AppBottomNav extends StatelessWidget {
                 color: AppColors.gold,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.add_rounded, size: 18, color: AppColors.ink),
+              child: const Icon(
+                Icons.add_rounded,
+                size: 18,
+                color: AppColors.ink,
+              ),
             ),
             const SizedBox(height: 4),
             const Text(
               'Ekle',
               style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.muted),
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: AppColors.muted,
+              ),
             ),
           ],
         ),

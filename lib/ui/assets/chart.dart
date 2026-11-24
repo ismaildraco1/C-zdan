@@ -16,9 +16,7 @@ List<Offset> chartPoints(List<double> values, Size size, {double pad = 8}) {
     for (var i = 0; i < values.length; i++)
       Offset(
         pad + i / (values.length - 1) * w,
-        range == 0
-            ? size.height / 2
-            : pad + (1 - (values[i] - lo) / range) * h,
+        range == 0 ? size.height / 2 : pad + (1 - (values[i] - lo) / range) * h,
       ),
   ];
 }
@@ -56,7 +54,11 @@ class _ChartPainter extends CustomPainter {
       ..color = const Color(0xFFE8ECE9)
       ..strokeWidth = 1;
     for (final f in [0.25, 0.5, 0.75]) {
-      canvas.drawLine(Offset(0, size.height * f), Offset(size.width, size.height * f), grid);
+      canvas.drawLine(
+        Offset(0, size.height * f),
+        Offset(size.width, size.height * f),
+        grid,
+      );
     }
 
     final line = Path()..moveTo(pts.first.dx, pts.first.dy);

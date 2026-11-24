@@ -42,19 +42,23 @@ const _onsBase = _Base('ONS', 3120.40, 1, -0.15);
 /// Gerçek bir kaynağa bağlanmadan, örnek fiyatlar etrafında dalgalanan sahte akış.
 class FakePriceFeed implements PriceFeed {
   FakePriceFeed({this.tick = const Duration(seconds: 2), int? seed})
-      : _random = Random(seed) {
-    _quotes = StreamController.broadcast(onListen: () {
-      _start();
-      scheduleMicrotask(() {
-        if (!_quotes.isClosed) _quotes.add(_snapshot());
-      });
-    });
-    _ons = StreamController.broadcast(onListen: () {
-      _start();
-      scheduleMicrotask(() {
-        if (!_ons.isClosed) _ons.add(_onsQuote());
-      });
-    });
+    : _random = Random(seed) {
+    _quotes = StreamController.broadcast(
+      onListen: () {
+        _start();
+        scheduleMicrotask(() {
+          if (!_quotes.isClosed) _quotes.add(_snapshot());
+        });
+      },
+    );
+    _ons = StreamController.broadcast(
+      onListen: () {
+        _start();
+        scheduleMicrotask(() {
+          if (!_ons.isClosed) _ons.add(_onsQuote());
+        });
+      },
+    );
   }
 
   final Duration tick;
@@ -106,8 +110,8 @@ class FakePriceFeed implements PriceFeed {
   }
 
   Map<AssetKind, Quote> _snapshot() => {
-        for (final e in _buy.entries) e.key: _make(_bases[e.key]!, e.value),
-      };
+    for (final e in _buy.entries) e.key: _make(_bases[e.key]!, e.value),
+  };
 
   Quote _onsQuote() => _make(_onsBase, _onsBuy);
 

@@ -11,11 +11,11 @@ class AssetIcon extends StatelessWidget {
   final double size;
 
   static String glyph(AssetKind k) => switch (k) {
-        AssetKind.usd => r'$',
-        AssetKind.eur => '€',
-        AssetKind.gbp => '£',
-        _ => 'Au',
-      };
+    AssetKind.usd => r'$',
+    AssetKind.eur => '€',
+    AssetKind.gbp => '£',
+    _ => 'Au',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -50,5 +50,5 @@ String changeText(double percent, String formatted) {
 Color changeColor(double percent) => percent > 0
     ? AppColors.up
     : percent < 0
-        ? AppColors.down
-        : AppColors.muted;
+    ? AppColors.down
+    : AppColors.muted;

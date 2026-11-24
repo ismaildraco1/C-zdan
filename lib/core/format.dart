@@ -21,11 +21,28 @@ String formatRate(double v) => _rate.format(v);
 /// `0.62` -> `%0,62` (işaretsiz; yön ayrıca gösterilir)
 String formatPercent(double v) => '%${_pct.format(v.abs())}';
 
-/// Kullanıcının yazdığı miktarı okur. Nokta binlik, virgül ondalık ayracıdır.
+final RegExp _thousandsOnly = RegExp(r'^[1-9]\d{0,2}(\.\d{3})+$');
+
+/// Kullanıcının yazdığı miktarı okur.
+///
+/// - Virgül varsa ondalık ayracıdır, noktalar binliktir: `2.500,5` -> 2500,5
+/// - Virgül yoksa ve yazı tam 3 haneli gruplardan oluşuyorsa nokta binliktir:
+///   `2.500` -> 2500 (`1.234` de 1234 olur; Türkçe yazımda noktanın anlamı budur)
+/// - Aksi halde nokta ondalık ayracıdır: `0.5`, `2.5`, `40.75`, `0.500` (= 0,5)
+///
 /// Geçersiz, sıfır, negatif veya sonsuz değerde `null` döner.
 double? parseAmount(String input) {
-  final cleaned = input.trim().replaceAll('.', '').replaceAll(',', '.');
-  final v = double.tryParse(cleaned);
+  final s = input.trim();
+  if (s.isEmpty) return null;
+  final String normalized;
+  if (s.contains(',')) {
+    normalized = s.replaceAll('.', '').replaceAll(',', '.');
+  } else if (_thousandsOnly.hasMatch(s)) {
+    normalized = s.replaceAll('.', '');
+  } else {
+    normalized = s;
+  }
+  final v = double.tryParse(normalized);
   if (v == null || !v.isFinite || v <= 0) return null;
   return v;
 }

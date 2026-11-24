@@ -78,9 +78,10 @@ class DetayScreen extends StatelessWidget {
                         Text(
                           'Elindeki ${formatAmount(h.amount)} ${h.kind.unit}',
                           style: const TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.muted),
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.muted,
+                          ),
                         ),
                         const SizedBox(height: 2),
                         FittedBox(
@@ -89,9 +90,10 @@ class DetayScreen extends StatelessWidget {
                           child: Text(
                             value == null ? '—' : formatTry(value),
                             style: const TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: -0.5),
+                              fontSize: 36,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.5,
+                            ),
                           ),
                         ),
                         if (quote != null && change.amount != 0)
@@ -121,8 +123,9 @@ class DetayScreen extends StatelessWidget {
                                     child: Text(
                                       'Grafik için fiyat bekleniyor',
                                       style: TextStyle(
-                                          fontSize: 14,
-                                          color: AppColors.muted),
+                                        fontSize: 14,
+                                        color: AppColors.muted,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -131,9 +134,15 @@ class DetayScreen extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _Stat('Alış', quote == null ? '—' : price(quote.buy)),
+                            _Stat(
+                              'Alış',
+                              quote == null ? '—' : price(quote.buy),
+                            ),
                             const SizedBox(width: 10),
-                            _Stat('Satış', quote == null ? '—' : price(quote.sell)),
+                            _Stat(
+                              'Satış',
+                              quote == null ? '—' : price(quote.sell),
+                            ),
                             const SizedBox(width: 10),
                             _Stat(
                               'Oturum aralığı',
@@ -160,8 +169,9 @@ class DetayScreen extends StatelessWidget {
                   Expanded(
                     child: PrimaryButton(
                       label: 'Miktarı düzenle',
-                      onPressed: () => Navigator.of(context)
-                          .pushNamed('/ekle', arguments: h),
+                      onPressed: () =>
+                          Navigator.of(context)
+                              .pushNamed('/ekle', arguments: h),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -174,11 +184,16 @@ class DetayScreen extends StatelessWidget {
                         side: const BorderSide(color: Color(0xFFD9B3AE)),
                         backgroundColor: AppColors.card,
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16)),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
                       ),
-                      child: const Text('Varlığı sil',
-                          style: TextStyle(
-                              fontSize: 15, fontWeight: FontWeight.w700)),
+                      child: const Text(
+                        'Varlığı sil',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -213,10 +228,12 @@ class _Stat extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, color: AppColors.muted)),
+            Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12, color: AppColors.muted),
+            ),
             const SizedBox(height: 4),
             FittedBox(
               fit: BoxFit.scaleDown,
@@ -224,7 +241,9 @@ class _Stat extends StatelessWidget {
               child: Text(
                 value,
                 style: TextStyle(
-                    fontSize: small ? 14 : 17, fontWeight: FontWeight.w700),
+                  fontSize: small ? 14 : 17,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],

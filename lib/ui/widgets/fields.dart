@@ -48,9 +48,9 @@ class LabeledField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     OutlineInputBorder border(Color c, double w) => OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: c, width: w),
-        );
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: c, width: w),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -78,8 +78,10 @@ class LabeledField extends StatelessWidget {
             errorText: error,
             filled: true,
             fillColor: AppColors.card,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
             enabledBorder: border(const Color(0xFFD5DCD7), 1),
             focusedBorder: border(AppColors.green, 2),
             errorBorder: border(AppColors.down, 1),

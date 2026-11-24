@@ -20,6 +20,7 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
   // Silme sonrası oturum kapanır; e-postayı baştan saklarız.
   late final String _email = context.read<AuthController>().user!.email;
   final _typed = TextEditingController();
+  String? _authError;
 
   @override
   void dispose() {
@@ -33,8 +34,12 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
   Future<void> _delete() async {
     final auth = context.read<AuthController>();
     final portfolio = context.read<PortfolioController>();
+    setState(() => _authError = null);
     final ok = await auth.deleteAccount(_typed.text);
-    if (!ok) return;
+    if (!ok) {
+      if (mounted) setState(() => _authError = auth.error);
+      return;
+    }
     await portfolio.clear();
     if (mounted) popToRoot(context);
   }
@@ -64,22 +69,31 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
                     child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Bu işlem geri alınamaz',
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF8A2820))),
+                        Text(
+                          'Bu işlem geri alınamaz',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF8A2820),
+                          ),
+                        ),
                         SizedBox(height: 8),
                         Text(
                           'Hesabını silersen şunlar kalıcı olarak kaldırılır:',
                           style: TextStyle(
-                              fontSize: 14, color: Color(0xFF5A2A25), height: 1.55),
+                            fontSize: 14,
+                            color: Color(0xFF5A2A25),
+                            height: 1.55,
+                          ),
                         ),
                         SizedBox(height: 6),
                         Text(
                           '• Kayıtlı tüm varlıkların ve miktarların\n• Profil bilgilerin\n• Fiyat bildirimlerin',
                           style: TextStyle(
-                              fontSize: 14, color: Color(0xFF5A2A25), height: 1.7),
+                            fontSize: 14,
+                            color: Color(0xFF5A2A25),
+                            height: 1.7,
+                          ),
                         ),
                       ],
                     ),
@@ -88,10 +102,11 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
                   Text(
                     'Onaylamak için e-posta adresini yaz: $_email',
                     style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.muted,
-                        height: 1.5),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.muted,
+                      height: 1.5,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   LabeledField(
@@ -102,11 +117,13 @@ class _HesapSilScreenState extends State<HesapSilScreen> {
                     hint: _email,
                     onChanged: (_) => setState(() {}),
                   ),
-                  if (auth.error != null)
+                  if (_authError != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
-                      child: Text(auth.error!,
-                          style: const TextStyle(color: AppColors.down)),
+                      child: Text(
+                        _authError!,
+                        style: const TextStyle(color: AppColors.down),
+                      ),
                     ),
                 ],
               ),

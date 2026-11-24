@@ -57,9 +57,9 @@ class Holding {
   final String note;
 
   Holding copyWith({double? amount, String? note}) => Holding(
-        id: id,
-        kind: kind,
-        amount: amount ?? this.amount,
-        note: note ?? this.note,
-      );
+    id: id,
+    kind: kind,
+    amount: amount ?? this.amount,
+    note: note ?? this.note,
+  );
 }

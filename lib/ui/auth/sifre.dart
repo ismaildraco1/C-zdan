@@ -17,6 +17,7 @@ class SifreScreen extends StatefulWidget {
 class _SifreScreenState extends State<SifreScreen> {
   final _email = TextEditingController();
   bool _submitted = false;
+  String? _authError;
 
   @override
   void dispose() {
@@ -28,9 +29,14 @@ class _SifreScreenState extends State<SifreScreen> {
     setState(() => _submitted = true);
     if (Validators.email(_email.text) != null) return;
     final email = _email.text.trim();
-    final ok = await context.read<AuthController>().sendReset(email);
-    if (ok && mounted) {
+    final auth = context.read<AuthController>();
+    setState(() => _authError = null);
+    final ok = await auth.sendReset(email);
+    if (!mounted) return;
+    if (ok) {
       Navigator.of(context).pushNamed('/sifre-gonderildi', arguments: email);
+    } else {
+      setState(() => _authError = auth.error);
     }
   }
 
@@ -53,7 +59,10 @@ class _SifreScreenState extends State<SifreScreen> {
                     const Text(
                       'Hesabını açtığın e-posta adresini yaz. Şifreni yenilemen için sana bir bağlantı göndereceğiz.',
                       style: TextStyle(
-                          fontSize: 15, color: AppColors.muted, height: 1.55),
+                        fontSize: 15,
+                        color: AppColors.muted,
+                        height: 1.55,
+                      ),
                     ),
                     const SizedBox(height: 24),
                     LabeledField(
@@ -64,11 +73,13 @@ class _SifreScreenState extends State<SifreScreen> {
                       error: _submitted ? Validators.email(_email.text) : null,
                       onChanged: (_) => setState(() {}),
                     ),
-                    if (auth.error != null)
+                    if (_authError != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
-                        child: Text(auth.error!,
-                            style: const TextStyle(color: AppColors.down)),
+                        child: Text(
+                          _authError!,
+                          style: const TextStyle(color: AppColors.down),
+                        ),
                       ),
                     const SizedBox(height: 20),
                     PrimaryButton(
@@ -80,9 +91,13 @@ class _SifreScreenState extends State<SifreScreen> {
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Text('Hatırladın mı?',
-                            style: TextStyle(
-                                fontSize: 14, color: AppColors.muted)),
+                        const Text(
+                          'Hatırladın mı?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.muted,
+                          ),
+                        ),
                         TextLink(
                           label: 'Giriş yap',
                           onTap: () => Navigator.of(context).maybePop(),

@@ -43,12 +43,7 @@ class LocalHoldingsRepository implements HoldingsRepository {
       _key,
       jsonEncode([
         for (final h in holdings)
-          {
-            'id': h.id,
-            'kind': h.kind.name,
-            'amount': h.amount,
-            'note': h.note,
-          },
+          {'id': h.id, 'kind': h.kind.name, 'amount': h.amount, 'note': h.note},
       ]),
     );
   }

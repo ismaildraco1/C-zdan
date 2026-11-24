@@ -21,6 +21,7 @@ class _KayitScreenState extends State<KayitScreen> {
   final _password = TextEditingController();
   bool _accepted = false;
   bool _submitted = false;
+  String? _authError;
 
   @override
   void dispose() {
@@ -42,18 +43,32 @@ class _KayitScreenState extends State<KayitScreen> {
   Future<void> _submit() async {
     setState(() => _submitted = true);
     if (!_valid) return;
-    final ok = await context.read<AuthController>().signUp(
-          firstName: _first.text,
-          lastName: _last.text,
-          email: _email.text,
-          password: _password.text,
-        );
-    if (ok && mounted) popToRoot(context);
+    final auth = context.read<AuthController>();
+    setState(() => _authError = null);
+    final ok = await auth.signUp(
+      firstName: _first.text,
+      lastName: _last.text,
+      email: _email.text,
+      password: _password.text,
+    );
+    if (!mounted) return;
+    if (ok) {
+      popToRoot(context);
+    } else {
+      setState(() => _authError = auth.error);
+    }
   }
 
   Future<void> _social(Future<bool> Function() action) async {
+    final auth = context.read<AuthController>();
+    setState(() => _authError = null);
     final ok = await action();
-    if (ok && mounted) popToRoot(context);
+    if (!mounted) return;
+    if (ok) {
+      popToRoot(context);
+    } else {
+      setState(() => _authError = auth.error);
+    }
   }
 
   @override
@@ -75,7 +90,10 @@ class _KayitScreenState extends State<KayitScreen> {
                     const Text(
                       'Varlıklarını kaydet, her cihazdan güncel değerini gör.',
                       style: TextStyle(
-                          fontSize: 15, color: AppColors.muted, height: 1.5),
+                        fontSize: 15,
+                        color: AppColors.muted,
+                        height: 1.5,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -86,8 +104,12 @@ class _KayitScreenState extends State<KayitScreen> {
                             id: 'ad',
                             label: 'Ad',
                             controller: _first,
-                            error: _err(() =>
-                                Validators.required(_first.text, 'Adını yaz.')),
+                            error: _err(
+                              () => Validators.required(
+                                _first.text,
+                                'Adını yaz.',
+                              ),
+                            ),
                             onChanged: (_) => setState(() {}),
                           ),
                         ),
@@ -97,8 +119,12 @@ class _KayitScreenState extends State<KayitScreen> {
                             id: 'soyad',
                             label: 'Soyad',
                             controller: _last,
-                            error: _err(() => Validators.required(
-                                _last.text, 'Soyadını yaz.')),
+                            error: _err(
+                              () => Validators.required(
+                                _last.text,
+                                'Soyadını yaz.',
+                              ),
+                            ),
                             onChanged: (_) => setState(() {}),
                           ),
                         ),
@@ -133,17 +159,21 @@ class _KayitScreenState extends State<KayitScreen> {
                       title: const Text(
                         'Kullanım koşullarını ve gizlilik politikasını okudum, kabul ediyorum.',
                         style: TextStyle(
-                            fontSize: 13, color: AppColors.muted, height: 1.5),
+                          fontSize: 13,
+                          color: AppColors.muted,
+                          height: 1.5,
+                        ),
                       ),
                     ),
-                    if (auth.error != null)
+                    if (_authError != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Text(
-                          auth.error!,
+                          _authError!,
                           style: const TextStyle(
-                              color: AppColors.down,
-                              fontWeight: FontWeight.w600),
+                            color: AppColors.down,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     PrimaryButton(
@@ -154,15 +184,21 @@ class _KayitScreenState extends State<KayitScreen> {
                     Row(
                       children: [
                         const Expanded(
-                            child: Divider(color: Color(0xFFD5DCD7), height: 1)),
+                          child: Divider(color: Color(0xFFD5DCD7), height: 1),
+                        ),
                         const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text('veya',
-                              style: TextStyle(
-                                  fontSize: 13, color: AppColors.muted)),
+                          child: Text(
+                            'veya',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: AppColors.muted,
+                            ),
+                          ),
                         ),
                         const Expanded(
-                            child: Divider(color: Color(0xFFD5DCD7), height: 1)),
+                          child: Divider(color: Color(0xFFD5DCD7), height: 1),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -171,7 +207,9 @@ class _KayitScreenState extends State<KayitScreen> {
                         Expanded(
                           child: SocialButton(
                             label: 'Google',
-                            onTap: auth.busy ? null : () => _social(auth.google),
+                            onTap: auth.busy
+                                ? null
+                                : () => _social(auth.google),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -189,9 +227,13 @@ class _KayitScreenState extends State<KayitScreen> {
                       alignment: WrapAlignment.center,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        const Text('Zaten hesabın var mı?',
-                            style: TextStyle(
-                                fontSize: 14, color: AppColors.muted)),
+                        const Text(
+                          'Zaten hesabın var mı?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.muted,
+                          ),
+                        ),
                         TextLink(
                           label: 'Giriş yap',
                           onTap: () => Navigator.of(context).maybePop(),

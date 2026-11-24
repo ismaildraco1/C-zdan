@@ -29,13 +29,14 @@ class AuthController extends ChangeNotifier {
     required String lastName,
     required String email,
     required String password,
-  }) =>
-      _run(() => _repo.signUp(
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password,
-          ));
+  }) => _run(
+    () => _repo.signUp(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      password: password,
+    ),
+  );
 
   Future<bool> google() => _run(_repo.signInWithGoogle);
   Future<bool> apple() => _run(_repo.signInWithApple);

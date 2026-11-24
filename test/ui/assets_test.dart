@@ -87,6 +87,45 @@ void main() {
       expect(h.portfolio.holdings, hasLength(1));
     });
 
+    testWidgets('0.5 yazılan miktar 0,5 olarak eklenir', (tester) async {
+      final h = await openEkle(tester);
+      await pickUsd(tester);
+      await tester.enterText(find.byKey(const Key('miktar')), '0.5');
+      await tester.pumpAndSettle();
+      await tester.tap(saveButton('Portföye ekle'));
+      await tester.pumpAndSettle();
+      expect(h.portfolio.holdings.single.amount, 0.5);
+    });
+
+    testWidgets('yavaş kayıtta çift dokunuş varlığı iki kez eklemez',
+        (tester) async {
+      final slow = SlowHoldingsRepository();
+      final h = await pumpApp(tester, signedIn: true, holdingsRepo: slow);
+      await tester.tap(find.byKey(const Key('nav-ekle')));
+      await tester.pumpAndSettle();
+      await pickUsd(tester);
+      await tester.enterText(find.byKey(const Key('miktar')), '100');
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveButton('Portföye ekle'));
+      await tester.pump();
+      await tester.tap(saveButton('Portföye ekle'), warnIfMissed: false);
+      await tester.pump();
+      slow.gate.complete();
+      await tester.pumpAndSettle();
+
+      expect(h.portfolio.holdings, hasLength(1));
+    });
+
+    testWidgets('çok büyük miktarda önizleme taşmaz', (tester) async {
+      await openEkle(tester);
+      await pickUsd(tester);
+      await tester.enterText(find.byKey(const Key('miktar')), '999999999');
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('₺ 41.179.999.958,82'), findsOneWidget);
+    });
+
     testWidgets('aynı türden iki kayıt iki satır olur', (tester) async {
       final h = await pumpApp(tester, signedIn: true);
       await h.portfolio.add(AssetKind.usd, 100, '');

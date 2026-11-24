@@ -47,6 +47,8 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
     super.dispose();
   }
 
+  bool _saving = false;
+
   bool get _isEdit => widget.editing != null;
   double? get _parsed => parseAmount(_amount.text);
 
@@ -59,14 +61,19 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
 
   Future<void> _save() async {
     final amount = _parsed;
-    if (amount == null) return;
+    if (amount == null || _saving) return;
+    setState(() => _saving = true);
     final portfolio = context.read<PortfolioController>();
-    if (_isEdit) {
-      await portfolio.update(widget.editing!.id, amount, _note.text.trim());
-    } else {
-      await portfolio.add(_kind, amount, _note.text.trim());
+    try {
+      if (_isEdit) {
+        await portfolio.update(widget.editing!.id, amount, _note.text.trim());
+      } else {
+        await portfolio.add(_kind, amount, _note.text.trim());
+      }
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _saving = false);
     }
-    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -163,7 +170,7 @@ class _VarlikEkleScreenState extends State<VarlikEkleScreen> {
                 children: [
                   PrimaryButton(
                     label: _isEdit ? 'Değişiklikleri kaydet' : 'Portföye ekle',
-                    onPressed: amount == null ? null : _save,
+                    onPressed: (amount == null || _saving) ? null : _save,
                   ),
                   if (reason != null)
                     Padding(

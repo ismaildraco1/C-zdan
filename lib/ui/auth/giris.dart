@@ -17,6 +17,7 @@ class _GirisScreenState extends State<GirisScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _submitted = false;
+  String? _authError;
 
   @override
   void dispose() {
@@ -25,17 +26,18 @@ class _GirisScreenState extends State<GirisScreen> {
     super.dispose();
   }
 
-  String? get _emailError =>
-      _submitted ? Validators.email(_email.text) : null;
-  String? get _passwordError => _submitted
-      ? Validators.required(_password.text, 'Şifreni yaz.')
-      : null;
+  String? get _emailError => _submitted ? Validators.email(_email.text) : null;
+  String? get _passwordError =>
+      _submitted ? Validators.required(_password.text, 'Şifreni yaz.') : null;
 
   Future<void> _submit() async {
     setState(() => _submitted = true);
     if (Validators.email(_email.text) != null || _password.text.isEmpty) return;
     // Başarılı girişte kök ekran kendiliğinden ana ekrana geçer.
-    await context.read<AuthController>().signIn(_email.text, _password.text);
+    final auth = context.read<AuthController>();
+    setState(() => _authError = null);
+    final ok = await auth.signIn(_email.text, _password.text);
+    if (!ok && mounted) setState(() => _authError = auth.error);
   }
 
   @override
@@ -56,8 +58,11 @@ class _GirisScreenState extends State<GirisScreen> {
                     color: AppColors.green,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(Icons.account_balance_wallet_outlined,
-                      color: Color(0xFFE0BE6A), size: 32),
+                  child: const Icon(
+                    Icons.account_balance_wallet_outlined,
+                    color: Color(0xFFE0BE6A),
+                    size: 32,
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -71,7 +76,10 @@ class _GirisScreenState extends State<GirisScreen> {
                 'Altın ve dövizlerinin güncel değeri, tek ekranda.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    fontSize: 15, color: AppColors.muted, height: 1.5),
+                  fontSize: 15,
+                  color: AppColors.muted,
+                  height: 1.5,
+                ),
               ),
               const SizedBox(height: 32),
               LabeledField(
@@ -98,13 +106,15 @@ class _GirisScreenState extends State<GirisScreen> {
                   onTap: () => Navigator.of(context).pushNamed('/sifre'),
                 ),
               ),
-              if (auth.error != null)
+              if (_authError != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    auth.error!,
+                    _authError!,
                     style: const TextStyle(
-                        color: AppColors.down, fontWeight: FontWeight.w600),
+                      color: AppColors.down,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               PrimaryButton(
@@ -129,8 +139,10 @@ class _GirisScreenState extends State<GirisScreen> {
                 alignment: WrapAlignment.center,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  const Text('Hesabın yok mu?',
-                      style: TextStyle(fontSize: 14, color: AppColors.muted)),
+                  const Text(
+                    'Hesabın yok mu?',
+                    style: TextStyle(fontSize: 14, color: AppColors.muted),
+                  ),
                   TextLink(
                     label: 'Kayıt ol',
                     onTap: () => Navigator.of(context).pushNamed('/kayit'),
@@ -156,8 +168,10 @@ class _OrDivider extends StatelessWidget {
         line,
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text('veya',
-              style: TextStyle(fontSize: 13, color: AppColors.muted)),
+          child: Text(
+            'veya',
+            style: TextStyle(fontSize: 13, color: AppColors.muted),
+          ),
         ),
         line,
       ],

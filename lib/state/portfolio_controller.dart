@@ -36,12 +36,14 @@ class PortfolioController extends ChangeNotifier {
   }
 
   Future<void> update(String id, double amount, String note) => _commit([
-        for (final h in _holdings)
-          h.id == id ? h.copyWith(amount: amount, note: note) : h,
-      ]);
+    for (final h in _holdings)
+      h.id == id ? h.copyWith(amount: amount, note: note) : h,
+  ]);
 
-  Future<void> remove(String id) =>
-      _commit([for (final h in _holdings) if (h.id != id) h]);
+  Future<void> remove(String id) => _commit([
+    for (final h in _holdings)
+      if (h.id != id) h,
+  ]);
 
   /// Tüm varlıkları siler (hesap silinirken kullanılır).
   Future<void> clear() => _commit(const []);

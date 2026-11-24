@@ -45,8 +45,8 @@ class _LiveBadgeState extends State<LiveBadge> {
     final text = last == null
         ? 'Fiyatlar bekleniyor'
         : stale
-            ? 'Son güncelleme $time'
-            : 'Canlı · $time';
+        ? 'Son güncelleme $time'
+        : 'Canlı · $time';
     // Canlı: yeşil. Bayat ya da henüz veri yok: soluk, bir şey doğru gösterilmiyor.
     final live = last != null && !stale;
     final textColor = live ? const Color(0xFF1F5C47) : AppColors.muted;

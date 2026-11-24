@@ -52,6 +52,20 @@ void main() {
     expect(find.text('Şifre hatalı.'), findsOneWidget);
   });
 
+  testWidgets('Girişteki şifre hatası Kayıt ekranında görünmez', (tester) async {
+    await pumpApp(tester, registered: true);
+    await tester.enterText(
+        find.byKey(const Key('eposta')), 'ayse.yilmaz@ornek.com');
+    await tester.enterText(find.byKey(const Key('sifre')), 'yanlis-sifre');
+    await tester.tap(button('Giriş yap'));
+    await tester.pumpAndSettle();
+    expect(find.text('Şifre hatalı.'), findsOneWidget);
+
+    await tester.tap(find.text('Kayıt ol'));
+    await tester.pumpAndSettle();
+    expect(find.text('Şifre hatalı.'), findsNothing);
+  });
+
   testWidgets('doğru bilgilerle giriş ana ekranı açar', (tester) async {
     final h = await pumpApp(tester, registered: true);
     await tester.enterText(
