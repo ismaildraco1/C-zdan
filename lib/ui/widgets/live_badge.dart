@@ -10,7 +10,10 @@ import '../../state/market_controller.dart';
 /// "Canlı · 14:32" ya da fiyat bayatsa "Son güncelleme 14:32" etiketi.
 /// Olay gelmese bile saniyede bir yeniden çizilir, çünkü bayatlama olaysız olur.
 class LiveBadge extends StatefulWidget {
-  const LiveBadge({super.key});
+  const LiveBadge({super.key, this.now = DateTime.now});
+
+  /// Saat kaynağı; testlerde sabit bir an verilir.
+  final DateTime Function() now;
 
   @override
   State<LiveBadge> createState() => _LiveBadgeState();
@@ -37,18 +40,21 @@ class _LiveBadgeState extends State<LiveBadge> {
   Widget build(BuildContext context) {
     final market = context.watch<MarketController>();
     final last = market.lastUpdate;
-    final stale = market.isStale(DateTime.now());
+    final stale = market.isStale(widget.now());
     final time = last == null ? '' : DateFormat('HH:mm').format(last);
     final text = last == null
         ? 'Fiyatlar bekleniyor'
         : stale
             ? 'Son güncelleme $time'
             : 'Canlı · $time';
+    // Canlı: yeşil. Bayat ya da henüz veri yok: soluk, bir şey doğru gösterilmiyor.
+    final live = last != null && !stale;
+    final textColor = live ? const Color(0xFF1F5C47) : AppColors.muted;
     return Container(
       key: const Key('live-badge'),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFFE3EBE6),
+        color: live ? const Color(0xFFE3EBE6) : const Color(0xFFE8ECE9),
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -57,8 +63,8 @@ class _LiveBadgeState extends State<LiveBadge> {
           Container(
             width: 7,
             height: 7,
-            decoration: const BoxDecoration(
-              color: AppColors.up,
+            decoration: BoxDecoration(
+              color: live ? AppColors.up : AppColors.muted,
               shape: BoxShape.circle,
             ),
           ),
@@ -68,10 +74,10 @@ class _LiveBadgeState extends State<LiveBadge> {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF1F5C47),
+                color: textColor,
               ),
             ),
           ),
