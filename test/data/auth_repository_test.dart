@@ -175,4 +175,33 @@ void main() {
     expect(FakeAuthRepository().supportsSocialLogin, isTrue);
     expect(FakeAuthRepository(socialLogin: false).supportsSocialLogin, isFalse);
   });
+
+  group('oturum dışarıdan değişirse', () {
+    test('endSession oturumu kapatır ve olay yayar', () async {
+      final repo = await registered();
+      final events = <void>[];
+      final sub = repo.sessionChanged.listen(events.add);
+
+      repo.endSession();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(await repo.currentUser(), isNull);
+      expect(events, hasLength(1));
+      await sub.cancel();
+    });
+
+    test('startSession hesabı oturuma alır ve olay yayar', () async {
+      final repo = await registered();
+      await repo.signOut();
+      final events = <void>[];
+      final sub = repo.sessionChanged.listen(events.add);
+
+      repo.startSession('ayse.yilmaz@ornek.com');
+      await Future<void>.delayed(Duration.zero);
+
+      expect((await repo.currentUser())?.email, 'ayse.yilmaz@ornek.com');
+      expect(events, hasLength(1));
+      await sub.cancel();
+    });
+  });
 }

@@ -108,4 +108,26 @@ void main() {
     expect(store.data['b@ornek.com'], hasLength(1));
     expect(store.data['a@ornek.com'], isNull);
   });
+
+  testWidgets('oturum dışarıdan sona ererse Giriş ekranına dönülür', (
+    tester,
+  ) async {
+    final auth = await twoAccounts();
+    final store = UserScopedHoldings(auth)
+      ..data['a@ornek.com'] = [
+        const Holding(id: 'h1', kind: AssetKind.usd, amount: 100, note: ''),
+      ];
+    final h = await pumpApp(tester, authRepo: auth, holdingsRepo: store);
+    await h.auth.signIn('a@ornek.com', '12345678');
+    await tester.pumpAndSettle();
+    expect(find.text('Amerikan Doları'), findsOneWidget);
+
+    auth.endSession(); // token süresi doldu / hesap başka yerden silindi
+    await tester.pumpAndSettle();
+
+    expect(h.auth.user, isNull);
+    expect(h.portfolio.holdings, isEmpty);
+    expect(find.text('Amerikan Doları'), findsNothing);
+    expect(find.text('Cüzdan'), findsOneWidget); // Giriş ekranı
+  });
 }

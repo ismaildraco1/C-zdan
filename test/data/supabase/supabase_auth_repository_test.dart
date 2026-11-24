@@ -326,4 +326,20 @@ void main() {
     await expectLater(repo.signInWithGoogle(), throwsA(isA<AuthException>()));
     await expectLater(repo.signInWithApple(), throwsA(isA<AuthException>()));
   });
+
+  test('giriş ve çıkış sessionChanged olayı yayar', () async {
+    final events = <void>[];
+    final sub = repo.sessionChanged.listen(events.add);
+
+    await signedIn();
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    final afterSignIn = events.length;
+    expect(afterSignIn, greaterThanOrEqualTo(1));
+
+    fake.on('POST /auth/v1/logout', (_) => http.Response('', 204));
+    await repo.signOut();
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    expect(events.length, greaterThan(afterSignIn));
+    await sub.cancel();
+  });
 }

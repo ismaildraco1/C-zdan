@@ -45,6 +45,10 @@ abstract class AuthRepository {
   /// pasif gösterilir.
   bool get supportsSocialLogin;
 
+  /// Oturum uygulamanın dışında değişti: süresi doldu, başka yerden iptal edildi
+  /// ya da bir e-posta bağlantısı oturum açtı. Dinleyen [currentUser]'ı yeniden okur.
+  Stream<void> get sessionChanged;
+
   /// E-postadaki şifre yenileme bağlantısı uygulamayı açıp oturum kurduğunda
   /// bir olay yayar.
   Stream<void> get passwordRecovery;
@@ -74,7 +78,24 @@ class FakeAuthRepository implements AuthRepository {
   final bool requireConfirmation;
   final Map<String, _Account> _accounts = {};
   final StreamController<void> _recovery = StreamController<void>.broadcast();
+  final StreamController<void> _sessionChanged =
+      StreamController<void>.broadcast();
   String? _currentKey;
+
+  @override
+  Stream<void> get sessionChanged => _sessionChanged.stream;
+
+  /// Testlerde oturumun dışarıdan sona ermesini taklit eder.
+  void endSession() {
+    _currentKey = null;
+    _sessionChanged.add(null);
+  }
+
+  /// Testlerde başka yerden (ör. doğrulama bağlantısıyla) oturum açılmasını taklit eder.
+  void startSession(String email) {
+    _currentKey = _key(email);
+    _sessionChanged.add(null);
+  }
 
   /// Testlerde e-posta doğrulamasını elle tamamlar.
   void confirm(String email) => _accounts[_key(email)]?.confirmed = true;

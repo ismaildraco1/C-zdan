@@ -166,4 +166,48 @@ void main() {
       expect(c.error, isNotNull);
     });
   });
+
+  group('oturum dışarıdan değişirse', () {
+    test(
+      'süresi dolan ya da iptal edilen oturum kullanıcıyı çıkarır',
+      () async {
+        final repo = FakeAuthRepository();
+        final c = AuthController(repo);
+        await c.signUp(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: '12345678',
+        );
+        expect(c.user, isNotNull);
+
+        repo.endSession();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(c.user, isNull);
+        expect(c.recovering, isFalse);
+      },
+    );
+
+    test(
+      'başka yerden açılan oturum (ör. doğrulama bağlantısı) görünür',
+      () async {
+        final repo = FakeAuthRepository(requireConfirmation: true);
+        final c = AuthController(repo);
+        await c.signUp(
+          firstName: 'A',
+          lastName: 'B',
+          email: 'a@b.com',
+          password: '12345678',
+        );
+        expect(c.user, isNull);
+
+        repo.confirm('a@b.com');
+        repo.startSession('a@b.com');
+        await Future<void>.delayed(Duration.zero);
+
+        expect(c.user?.email, 'a@b.com');
+      },
+    );
+  });
 }

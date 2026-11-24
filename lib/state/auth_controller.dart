@@ -7,6 +7,11 @@ import '../data/auth_repository.dart';
 /// Oturum durumunu ve giriş/kayıt işlemlerini yönetir.
 class AuthController extends ChangeNotifier {
   AuthController(this._repo) {
+    _sessionSub = _repo.sessionChanged.listen((_) async {
+      _user = await _repo.currentUser();
+      if (_user == null) _recovering = false;
+      notifyListeners();
+    });
     _recoverySub = _repo.passwordRecovery.listen((_) async {
       _user = await _repo.currentUser();
       _recovering = true;
@@ -16,6 +21,7 @@ class AuthController extends ChangeNotifier {
 
   final AuthRepository _repo;
   StreamSubscription<void>? _recoverySub;
+  StreamSubscription<void>? _sessionSub;
   UserProfile? _user;
   String? _error;
   bool _busy = false;
@@ -142,6 +148,7 @@ class AuthController extends ChangeNotifier {
   @override
   void dispose() {
     _recoverySub?.cancel();
+    _sessionSub?.cancel();
     super.dispose();
   }
 

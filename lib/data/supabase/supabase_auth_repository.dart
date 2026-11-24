@@ -142,6 +142,16 @@ class SupabaseAuthRepository implements AuthRepository {
       _guard(() => _auth.updateUser(sb.UserAttributes(password: newPassword)));
 
   @override
+  Stream<void> get sessionChanged => _auth.onAuthStateChange
+      .where(
+        (s) =>
+            s.event == sb.AuthChangeEvent.signedIn ||
+            s.event == sb.AuthChangeEvent.signedOut ||
+            s.event == sb.AuthChangeEvent.userUpdated,
+      )
+      .map((_) {});
+
+  @override
   Stream<void> get passwordRecovery => _auth.onAuthStateChange
       .where((s) => s.event == sb.AuthChangeEvent.passwordRecovery)
       .map((_) {});
