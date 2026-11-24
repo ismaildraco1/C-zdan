@@ -43,6 +43,9 @@ class PortfolioController extends ChangeNotifier {
   Future<void> remove(String id) =>
       _commit([for (final h in _holdings) if (h.id != id) h]);
 
+  /// Tüm varlıkları siler (hesap silinirken kullanılır).
+  Future<void> clear() => _commit(const []);
+
   Future<void> _commit(List<Holding> next) async {
     _holdings = List.unmodifiable(next);
     notifyListeners();

@@ -29,6 +29,7 @@ class LabeledField extends StatelessWidget {
     this.onChanged,
     this.hint,
     this.suffix,
+    this.enabled = true,
     this.autofillHints,
   });
 
@@ -41,6 +42,7 @@ class LabeledField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final String? hint;
   final String? suffix;
+  final bool enabled;
   final Iterable<String>? autofillHints;
 
   @override
@@ -66,6 +68,7 @@ class LabeledField extends StatelessWidget {
           controller: controller,
           keyboardType: keyboardType,
           obscureText: obscure,
+          enabled: enabled,
           onChanged: onChanged,
           autofillHints: autofillHints,
           style: const TextStyle(fontSize: 15),

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'core/theme.dart';
 import 'domain/models.dart';
 import 'state/auth_controller.dart';
+import 'ui/account/hesap_sil.dart';
+import 'ui/account/profil.dart';
 import 'ui/assets/detay.dart';
 import 'ui/assets/varlik_ekle.dart';
 import 'state/market_controller.dart';
@@ -67,6 +69,10 @@ Route<dynamic>? _route(RouteSettings settings) {
       page = VarlikEkleScreen(editing: settings.arguments as Holding?);
     case '/detay':
       page = DetayScreen(holding: settings.arguments as Holding);
+    case '/profil':
+      page = const ProfilScreen();
+    case '/hesap-sil':
+      page = const HesapSilScreen();
     case '/sifre':
       page = const SifreScreen();
     case '/sifre-gonderildi':

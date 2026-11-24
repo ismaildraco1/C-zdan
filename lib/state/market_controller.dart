@@ -31,6 +31,8 @@ class MarketController extends ChangeNotifier {
   List<double> history(AssetKind kind) =>
       List.unmodifiable(_history[kind] ?? const <double>[]);
 
+  String get sourceName => _feed.sourceName;
+
   Map<AssetKind, Quote> get quotes => _quotes;
   Quote? get ons => _ons;
   DateTime? get lastUpdate => _lastUpdate;

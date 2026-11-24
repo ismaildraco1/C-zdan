@@ -11,6 +11,12 @@ void main() {
     feed.dispose();
   });
 
+  test('sahte akış kaynağını örnek fiyat olarak adlandırır', () {
+    final feed = FakePriceFeed(tick: const Duration(milliseconds: 20));
+    expect(feed.sourceName, 'Örnek fiyatlar');
+    feed.dispose();
+  });
+
   test('ons fiyatı ayrı akışta gelir', () async {
     final feed = FakePriceFeed(tick: const Duration(milliseconds: 20));
     final ons = await feed.ons.first;

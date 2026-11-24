@@ -10,6 +10,9 @@ class TestFeed implements PriceFeed {
   final _ons = StreamController<Quote>.broadcast(sync: true);
 
   @override
+  String get sourceName => 'Test fiyatları';
+
+  @override
   Stream<Map<AssetKind, Quote>> get quotes => _quotes.stream;
 
   @override

@@ -5,6 +5,10 @@ import '../domain/asset_kind.dart';
 import '../domain/models.dart';
 
 abstract class PriceFeed {
+  /// Ayarlar'da "Fiyat kaynağı" olarak gösterilen ad. Sahte akış kendini
+  /// açıkça "Örnek fiyatlar" diye adlandırır.
+  String get sourceName;
+
   /// Yedi portföy türünün güncel fiyatları. Her olay tüm türleri içerir.
   Stream<Map<AssetKind, Quote>> get quotes;
 
@@ -62,6 +66,9 @@ class FakePriceFeed implements PriceFeed {
     for (final e in _bases.entries) e.key: e.value.buy,
   };
   double _onsBuy = _onsBase.buy;
+
+  @override
+  String get sourceName => 'Örnek fiyatlar';
 
   @override
   Stream<Map<AssetKind, Quote>> get quotes => _quotes.stream;

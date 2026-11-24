@@ -73,6 +73,12 @@ void main() {
     });
   });
 
+  test('sourceName akıştan gelir', () {
+    final market = MarketController(TestFeed());
+    expect(market.sourceName, 'Test fiyatları');
+    market.dispose();
+  });
+
   test('dinleyicilere haber verir', () {
     final feed = TestFeed();
     final market = MarketController(feed);
