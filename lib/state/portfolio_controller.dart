@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/holdings_repository.dart';
 import '../domain/asset_kind.dart';
+import '../domain/ids.dart';
 import '../domain/models.dart';
 import '../domain/portfolio.dart';
 import 'market_controller.dart';
@@ -15,7 +16,6 @@ class PortfolioController extends ChangeNotifier {
   final HoldingsRepository _repo;
   final MarketController _market;
   List<Holding> _holdings = const [];
-  int _counter = 0;
 
   List<Holding> get holdings => _holdings;
   double get total => netValue(_holdings, _market.quotes);
@@ -28,7 +28,7 @@ class PortfolioController extends ChangeNotifier {
   }
 
   Future<void> add(AssetKind kind, double amount, String note) async {
-    final id = '${DateTime.now().microsecondsSinceEpoch}-${_counter++}';
+    final id = newId();
     await _commit([
       ..._holdings,
       Holding(id: id, kind: kind, amount: amount, note: note),
