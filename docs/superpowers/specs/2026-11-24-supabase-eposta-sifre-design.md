@@ -23,7 +23,7 @@ Sahte hesap ve cihaz içi varlık deposunu Supabase ile değiştirmek: kullanıc
 
 - Google ve Apple girişi: **yapılmayacak** (kullanıcının kararı, 2026-11-27). Ekranlarda düğme yok.
   Sonradan eklenirse App Store kuralı gereği ikisi birlikte eklenmeli.
-- Fiyat akışı: sahte kalır. Fiyat kaynağı kararı hâlâ açık.
+- Fiyat akışı: bu turda sahteydi. Sonra Harem Altın seçildi (bkz. `2026-11-15-cuzdan-design.md`, "Kararlar").
 - Çevrimdışı çalışma ve çakışma çözümü: yoksa hata gösterilir, değişiklik geri alınır.
 
 ## Kararlar (benim önerim, kullanıcı itiraz etmedi)
