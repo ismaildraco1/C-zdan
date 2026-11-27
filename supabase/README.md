@@ -26,6 +26,15 @@ SQL Editor'de `migrations/20261124000000_init.sql` dosyasının tamamını çal�
 - `public.delete_my_account()` fonksiyonu: giriş yapmış kullanıcı kendi hesabını
   siler; varlıkları `on delete cascade` ile birlikte gider.
 
+Bu SQL, Supabase'i taklit eden bir iskelet üzerinde yerel Postgres 16'da sınandı
+(`tests/run_local.sh`): bir kullanıcı ötekinin satırını göremez, değiştiremez, silemez,
+başkası adına ekleyemez ve kimliğini kullanarak upsert ile ele geçiremez; miktar 0 ve
+bilinmeyen tür reddedilir; `anon` rolü hesabı silemez; hesap silme yalnızca çağıranı
+ve satırlarını siler. İskelet gerçek Supabase değildir, bu yüzden aşağıdaki elle doğrulama
+listesi yine de gereklidir. Kendi bilgisayarında tekrarlamak için (yerel Postgres gerekir):
+
+    ./supabase/tests/run_local.sh
+
 ## 3. Yönlendirme adresini ekle
 
 Authentication → URL Configuration → **Redirect URLs** listesine ekle:
