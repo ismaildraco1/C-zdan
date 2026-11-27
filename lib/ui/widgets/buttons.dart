@@ -42,46 +42,6 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
-/// "Google ile devam et" gibi alternatif giriş düğmesi.
-/// Resmi logo ve tasarım kuralları gerçek bağlantı aşamasında uygulanacak.
-class SocialButton extends StatelessWidget {
-  const SocialButton({
-    super.key,
-    required this.label,
-    required this.onTap,
-    this.dark = false,
-  });
-
-  final String label;
-  final VoidCallback? onTap;
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 52,
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          backgroundColor: dark ? AppColors.ink : AppColors.card,
-          foregroundColor: dark ? Colors.white : AppColors.ink,
-          side: BorderSide(
-            color: dark ? AppColors.ink : const Color(0xFFD5DCD7),
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-        ),
-      ),
-    );
-  }
-}
-
 /// Metin bağlantısı. Dokunma alanı en az 44 px yüksekliktedir.
 class TextLink extends StatelessWidget {
   const TextLink({

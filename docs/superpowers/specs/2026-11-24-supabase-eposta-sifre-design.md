@@ -21,8 +21,8 @@ Sahte hesap ve cihaz içi varlık deposunu Supabase ile değiştirmek: kullanıc
 
 ## Kapsam dışı
 
-- Google ve Apple girişi (sonraki tur; dış hesap kurulumu ister). Düğmeler şimdilik
-  sahte girişte kalır, Supabase modunda kapalı ve "Yakında" olarak gösterilir.
+- Google ve Apple girişi: **yapılmayacak** (kullanıcının kararı, 2026-11-27). Ekranlarda düğme yok.
+  Sonradan eklenirse App Store kuralı gereği ikisi birlikte eklenmeli.
 - Fiyat akışı: sahte kalır. Fiyat kaynağı kararı hâlâ açık.
 - Çevrimdışı çalışma ve çakışma çözümü: yoksa hata gösterilir, değişiklik geri alınır.
 

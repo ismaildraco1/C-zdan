@@ -79,11 +79,6 @@ void main() {
     expect((await repo.currentUser())?.firstName, 'Ayşegül');
   });
 
-  test('Google ve Apple girişi bir kullanıcı döndürür', () async {
-    expect((await FakeAuthRepository().signInWithGoogle()).email, isNotEmpty);
-    expect((await FakeAuthRepository().signInWithApple()).email, isNotEmpty);
-  });
-
   group('e-posta doğrulaması', () {
     test('requireConfirmation açıkken kayıt oturum açmaz', () async {
       final repo = FakeAuthRepository(requireConfirmation: true);
@@ -169,11 +164,6 @@ void main() {
         throwsA(isA<AuthException>()),
       );
     });
-  });
-
-  test('sosyal giriş sahte uygulamada varsayılan olarak açıktır', () {
-    expect(FakeAuthRepository().supportsSocialLogin, isTrue);
-    expect(FakeAuthRepository(socialLogin: false).supportsSocialLogin, isFalse);
   });
 
   group('oturum dışarıdan değişirse', () {

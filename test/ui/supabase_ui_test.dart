@@ -202,26 +202,6 @@ void main() {
     },
   );
 
-  group('sosyal giriş kapalıyken', () {
-    testWidgets('Giriş’te düğmeler pasif ve yakında yazar', (tester) async {
-      await pumpApp(tester, authRepo: FakeAuthRepository(socialLogin: false));
-      expect(find.text('Google ve Apple ile giriş yakında.'), findsOneWidget);
-      final g = tester.widget<SocialButton>(
-        find.widgetWithText(SocialButton, 'Google ile devam et'),
-      );
-      final a = tester.widget<SocialButton>(
-        find.widgetWithText(SocialButton, 'Apple ile devam et'),
-      );
-      expect(g.onTap, isNull);
-      expect(a.onTap, isNull);
-    });
-
-    testWidgets('açıkken düğmeler çalışır ve not görünmez', (tester) async {
-      await pumpApp(tester);
-      expect(find.text('Google ve Apple ile giriş yakında.'), findsNothing);
-    });
-  });
-
   group('depo hataları ekranda görünür', () {
     testWidgets(
       'kaydedilemeyen varlık için Ekle ekranı hata gösterir ve açık kalır',

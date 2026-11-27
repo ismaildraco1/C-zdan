@@ -64,18 +64,6 @@ class _KayitScreenState extends State<KayitScreen> {
     }
   }
 
-  Future<void> _social(Future<bool> Function() action) async {
-    final auth = context.read<AuthController>();
-    setState(() => _authError = null);
-    final ok = await action();
-    if (!mounted) return;
-    if (ok) {
-      popToRoot(context);
-    } else {
-      setState(() => _authError = auth.error);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthController>();
@@ -185,62 +173,6 @@ class _KayitScreenState extends State<KayitScreen> {
                       label: 'Hesap oluştur',
                       onPressed: (_accepted && !auth.busy) ? _submit : null,
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Divider(color: Color(0xFFD5DCD7), height: 1),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Text(
-                            'veya',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: AppColors.muted,
-                            ),
-                          ),
-                        ),
-                        const Expanded(
-                          child: Divider(color: Color(0xFFD5DCD7), height: 1),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SocialButton(
-                            label: 'Google',
-                            onTap: (auth.busy || !auth.supportsSocialLogin)
-                                ? null
-                                : () => _social(auth.google),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: SocialButton(
-                            label: 'Apple',
-                            dark: true,
-                            onTap: (auth.busy || !auth.supportsSocialLogin)
-                                ? null
-                                : () => _social(auth.apple),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (!auth.supportsSocialLogin)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: Text(
-                          'Google ve Apple ile giriş yakında.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppColors.muted,
-                          ),
-                        ),
-                      ),
                     const SizedBox(height: 20),
                     Wrap(
                       alignment: WrapAlignment.center,

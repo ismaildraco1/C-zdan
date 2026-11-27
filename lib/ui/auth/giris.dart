@@ -121,32 +121,6 @@ class _GirisScreenState extends State<GirisScreen> {
                 label: 'Giriş yap',
                 onPressed: auth.busy ? null : _submit,
               ),
-              const SizedBox(height: 22),
-              const _OrDivider(),
-              const SizedBox(height: 18),
-              SocialButton(
-                label: 'Google ile devam et',
-                onTap: (auth.busy || !auth.supportsSocialLogin)
-                    ? null
-                    : () => auth.google(),
-              ),
-              const SizedBox(height: 10),
-              SocialButton(
-                label: 'Apple ile devam et',
-                dark: true,
-                onTap: (auth.busy || !auth.supportsSocialLogin)
-                    ? null
-                    : () => auth.apple(),
-              ),
-              if (!auth.supportsSocialLogin)
-                const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text(
-                    'Google ve Apple ile giriş yakında.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 13, color: AppColors.muted),
-                  ),
-                ),
               const SizedBox(height: 28),
               Wrap(
                 alignment: WrapAlignment.center,
@@ -166,28 +140,6 @@ class _GirisScreenState extends State<GirisScreen> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    const line = Expanded(child: Divider(color: Color(0xFFD5DCD7), height: 1));
-    return const Row(
-      children: [
-        line,
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: Text(
-            'veya',
-            style: TextStyle(fontSize: 13, color: AppColors.muted),
-          ),
-        ),
-        line,
-      ],
     );
   }
 }

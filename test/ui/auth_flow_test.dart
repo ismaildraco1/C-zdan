@@ -25,8 +25,9 @@ void main() {
     await pumpApp(tester);
     expect(find.text('Cüzdan'), findsOneWidget);
     expect(button('Giriş yap'), findsOneWidget);
-    expect(find.text('Google ile devam et'), findsOneWidget);
-    expect(find.text('Apple ile devam et'), findsOneWidget);
+    expect(find.textContaining('Google'), findsNothing);
+    expect(find.textContaining('Apple'), findsNothing);
+    expect(find.text('veya'), findsNothing);
   });
 
   testWidgets('geçersiz e-postayla giriş hata gösterir ve oturum açmaz', (
@@ -201,11 +202,14 @@ void main() {
     expect(find.text('Bağlantıyı gönderdik'), findsNothing);
   });
 
-  testWidgets('Google ile devam et ana ekranı açar', (tester) async {
-    final h = await pumpApp(tester);
-    await tester.tap(find.text('Google ile devam et'));
+  testWidgets('Kayıt ekranında da Google, Apple ve "veya" yok', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(find.text('Kayıt ol'));
     await tester.pumpAndSettle();
-    expect(h.auth.user, isNotNull);
-    expect(find.text('Varlıklarım'), findsOneWidget);
+
+    expect(find.textContaining('Google'), findsNothing);
+    expect(find.textContaining('Apple'), findsNothing);
+    expect(find.text('veya'), findsNothing);
+    expect(button('Hesap oluştur'), findsOneWidget);
   });
 }

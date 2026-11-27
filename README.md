@@ -18,7 +18,6 @@ Arayüz ve uygulama mantığı tamam. Hesap ve varlıklar **Supabase** ile çal�
 | Hesap ve giriş | `SupabaseAuthRepository` (e-posta/şifre) | `FakeAuthRepository` (bellekte, kapanınca silinir) |
 | Varlıklar | `SupabaseHoldingsRepository` (hesaba bağlı, RLS) | `LocalHoldingsRepository` (telefonda) |
 | Fiyatlar | `PRICE_SOURCE=harem` ise `HaremPriceFeed` (canlı), değilse `FakePriceFeed` (örnek, iki saniyede bir dalgalanır) | aynı |
-| Google / Apple girişi | kapalı ("yakında") | sahte kullanıcı açar |
 
 Kurulum adımları ve elle doğrulama listesi: [`supabase/README.md`](supabase/README.md).
 Karar bekleyen konular: `docs/superpowers/specs/2026-11-15-cuzdan-design.md`.
@@ -99,8 +98,8 @@ kullanılacağını seçer.
   `sourceName`. Her `quotes` olayı o ana kadar bilinen tüm türleri içermelidir.
   Gerçeği `HaremPriceFeed` (yukarıya bak), sahtesi `FakePriceFeed`.
 - `AuthRepository` (`lib/data/auth_repository.dart`): Supabase uygulaması hazır
-  (`lib/data/supabase/`). Google ve Apple için `supportsSocialLogin` ve
-  `signInWithGoogle/Apple` doldurulacak.
+  (`lib/data/supabase/`). Giriş yalnızca e-posta/şifre; Google ve Apple girişi
+  yapılmamaya karar verildi (kullanıcının kararı, 2026-11-27).
 - `HoldingsRepository` (`lib/data/holdings_repository.dart`): Supabase uygulaması hazır.
 
 Fiyat kaynağı olarak düşünülen Harem Altın'ın resmi, herkese açık bir API'si
@@ -109,7 +108,7 @@ doğruluğunu ayrıca kontrol etmek gerekir.
 
 ## Bilinen eksikler
 
-- Google ve Apple girişi yok (Supabase modunda düğmeler pasif). Dış hesap kurulumu ister.
+- Google ve Apple girişi yok, ekranlarda da düğme yok. Sonradan eklenirse App Store kuralı gereği ikisi birlikte olmalı.
 - Harem Altın akışı gerçek veriyle denenmedi (`tool/harem_check.dart` ile doğrulanmalı)
   ve kullanım izni yok. Varsayılan fiyatlar hâlâ örnektir.
 - Çevrimdışı çalışma yok: bağlantı yoksa değişiklik kaydedilmez, hata gösterilir ve

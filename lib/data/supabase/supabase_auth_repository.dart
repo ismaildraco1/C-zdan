@@ -6,7 +6,7 @@ import '../auth_repository.dart';
 import 'error_messages.dart';
 
 /// Supabase Auth ile e-posta/şifre girişi. Ad, soyad ve telefon kullanıcının
-/// `user_metadata` alanında tutulur. Google ve Apple bu sürümde kapalıdır.
+/// `user_metadata` alanında tutulur.
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(
     this._client, {
@@ -87,17 +87,6 @@ class SupabaseAuthRepository implements AuthRepository {
       return _profile(r.user!);
     });
   }
-
-  @override
-  bool get supportsSocialLogin => false;
-
-  @override
-  Future<UserProfile> signInWithGoogle() async =>
-      throw const AuthException('Google ile giriş yakında gelecek.');
-
-  @override
-  Future<UserProfile> signInWithApple() async =>
-      throw const AuthException('Apple ile giriş yakında gelecek.');
 
   @override
   Future<void> sendPasswordReset(String email) => _guard(

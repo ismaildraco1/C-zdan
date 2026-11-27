@@ -30,8 +30,6 @@ abstract class AuthRepository {
     required String email,
     required String password,
   });
-  Future<UserProfile> signInWithGoogle();
-  Future<UserProfile> signInWithApple();
   Future<void> sendPasswordReset(String email);
   Future<void> signOut();
   Future<void> deleteAccount();
@@ -40,10 +38,6 @@ abstract class AuthRepository {
   /// Oturumdaki kullanıcının şifresini değiştirir (şifre yenileme bağlantısıyla
   /// gelen oturum da buna dahildir).
   Future<void> updatePassword(String newPassword);
-
-  /// Google ve Apple ile giriş bu uygulamada çalışıyor mu? Kapalıysa düğmeler
-  /// pasif gösterilir.
-  bool get supportsSocialLogin;
 
   /// Oturum uygulamanın dışında değişti: süresi doldu, başka yerden iptal edildi
   /// ya da bir e-posta bağlantısı oturum açtı. Dinleyen [currentUser]'ı yeniden okur.
@@ -63,15 +57,7 @@ class _Account {
 
 /// Bellekte çalışan sahte hesap servisi. Uygulama kapanınca hesaplar silinir.
 class FakeAuthRepository implements AuthRepository {
-  FakeAuthRepository({
-    this.requireConfirmation = false,
-    this.socialLogin = true,
-  });
-
-  final bool socialLogin;
-
-  @override
-  bool get supportsSocialLogin => socialLogin;
+  FakeAuthRepository({this.requireConfirmation = false});
 
   /// Açıksa kayıt oturum açmaz ve e-posta doğrulaması ister (Supabase'in
   /// varsayılan davranışı).
@@ -158,29 +144,6 @@ class FakeAuthRepository implements AuthRepository {
     _currentKey = key;
     return profile;
   }
-
-  Future<UserProfile> _social(String firstName, String lastName) async {
-    const email = 'ayse.yilmaz@ornek.com';
-    final existing = _accounts[email];
-    if (existing != null) {
-      _currentKey = email;
-      return existing.profile;
-    }
-    final profile = UserProfile(
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-    );
-    _accounts[email] = _Account('sosyal-giris', profile);
-    _currentKey = email;
-    return profile;
-  }
-
-  @override
-  Future<UserProfile> signInWithGoogle() => _social('Ayşe', 'Yılmaz');
-
-  @override
-  Future<UserProfile> signInWithApple() => _social('Ayşe', 'Yılmaz');
 
   @override
   Future<void> sendPasswordReset(String email) async {}

@@ -97,15 +97,6 @@ void main() {
     expect(await c.sendReset('a@b.com'), isTrue);
   });
 
-  test('google ve apple girişi kullanıcıyı ayarlar', () async {
-    final g = AuthController(FakeAuthRepository());
-    expect(await g.google(), isTrue);
-    expect(g.user, isNotNull);
-    final a = AuthController(FakeAuthRepository());
-    expect(await a.apple(), isTrue);
-    expect(a.user, isNotNull);
-  });
-
   group('e-posta doğrulaması ve şifre yenileme', () {
     test(
       'doğrulama gerekiyorsa signUp false döner, hata değil bilgi bırakır',
