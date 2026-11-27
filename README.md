@@ -54,17 +54,21 @@ uygulamaya hiçbir zaman konmaz.
 akışına doğrudan bağlanır (`wss://hrmsocketonly.haremaltin.com`, yalnızca `websocket`
 taşıması, kimlik doğrulama yok, `price_changed` olayı). Kod: `lib/data/harem/`.
 
-**Önce bunu çalıştır.** Akış sitenin kendi sayfasından okunarak çözüldü, gerçek bir
-olay görülmedi (geliştirme ortamı WebSocket'e izin vermiyor). Alanların sayı mı metin
-mi geldiği, kod adları ve değişim hesabı varsayımdır. Bilgisayarında şunu çalıştır:
+**Gerçek veriyle doğrulandı (2026-11-28).** Canlı akıştan sekiz ürünün hepsi geldi;
+ilk olay 58 ürünün tamamını içeren tam bir anlık görüntü, sonrakiler yalnızca değişenleri
+taşıyor. Sayılar bazen metin (`"50.6420"`), bazen sayı (`9884`) geliyor ve noktalı ondalıkla
+yazılıyor; ayrıştırıcı ikisini de okur, gerçek satırlar `harem_parser_test.dart` içinde
+test olarak duruyor. Kendi cihazında denemek için:
 
 ```bash
 dart run tool/harem_check.dart --ham
 ```
 
-Çıktı "TAMAM: tüm türler geldi." demeli. "EKSİK" ya da "UYARI" görürsen çıktıyı olduğu
-gibi paylaş; ayrıştırma gerçek veriye göre düzeltilir. Aynı araç `--url=ws://localhost:PORT`
-ile yerel bir sunucuya da bağlanabilir.
+Çıktı "TAMAM: tüm türler geldi." demeli. Bir sorun görürsen çıktıyı olduğu gibi paylaş.
+Aynı araç `--url=ws://localhost:PORT` ile yerel bir sunucuya da bağlanabilir.
+
+Piyasa kapalıyken (gece, hafta sonu) yeni olay gelmez; rozet "Son güncelleme" gösterir.
+Bu bir hata değil, son bilinen fiyatın zamanıdır.
 
 Ürün eşleşmesi (`lib/data/harem/harem_parser.dart`): Gram altın = `ALTIN` (**has altın**,
 22 ayar değil), Çeyrek/Yarım/Tam = `CEYREK_YENI`/`YARIM_YENI`/`TEK_YENI`, USD/EUR/GBP =
@@ -109,8 +113,8 @@ doğruluğunu ayrıca kontrol etmek gerekir.
 ## Bilinen eksikler
 
 - Google ve Apple girişi yok, ekranlarda da düğme yok. Sonradan eklenirse App Store kuralı gereği ikisi birlikte olmalı.
-- Harem Altın akışı gerçek veriyle denenmedi (`tool/harem_check.dart` ile doğrulanmalı)
-  ve kullanım izni yok. Varsayılan fiyatlar hâlâ örnektir.
+- Harem Altın akışının kullanım izni yok (bkz. yukarısı). `PRICE_SOURCE=harem` verilmezse
+  fiyatlar örnektir.
 - Çevrimdışı çalışma yok: bağlantı yoksa değişiklik kaydedilmez, hata gösterilir ve
   liste eski haline döner. Çıkış yapmak da bağlantı ister.
 - İki cihazdan aynı anda düzenleme: en son kaydeden kazanır.

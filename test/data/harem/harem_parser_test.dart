@@ -199,4 +199,105 @@ void main() {
       expect(s.quotes[AssetKind.usd]!.symbol, 'USDTRY');
     });
   });
+
+  group('gerçek akıştan alınmış satırlar (2026-11-28)', () {
+    // Harem Altın'ın canlı akışından olduğu gibi alındı: sayılar bazen metin bazen
+    // sayı, fazladan alanlar (dir, dusuk, yuksek) var.
+    final real = {
+      'meta': {'time': 1795813709952},
+      'data': {
+        'USDTRY': {
+          'code': 'USDTRY',
+          'alis': '50.6420',
+          'satis': '50.7980',
+          'tarih': '28-11-2026 00:08:30',
+          'dir': {'alis_dir': '', 'satis_dir': 'up'},
+          'dusuk': '50.7950',
+          'yuksek': '50.7990',
+          'kapanis': 50.798,
+        },
+        'EURTRY': {
+          'code': 'EURTRY',
+          'alis': '55.1710',
+          'satis': '55.4480',
+          'tarih': '28-11-2026 00:08:30',
+          'dir': {'alis_dir': '', 'satis_dir': 'up'},
+          'dusuk': '55.4440',
+          'yuksek': '55.4480',
+          'kapanis': 55.624,
+        },
+        'ALTIN': {
+          'code': 'ALTIN',
+          'alis': '6063.750',
+          'satis': '6124.600',
+          'tarih': '28-11-2026 00:08:30',
+          'dir': {'alis_dir': '', 'satis_dir': 'up'},
+          'dusuk': '6124.200',
+          'yuksek': '6124.670',
+          'kapanis': 6034.1,
+        },
+        'CEYREK_YENI': {
+          'code': 'CEYREK_YENI',
+          'alis': 9884,
+          'satis': 10172,
+          'tarih': '28-11-2026 00:08:31',
+          'dir': {'alis_dir': '', 'satis_dir': ''},
+          'dusuk': 10171,
+          'yuksek': 10172,
+          'kapanis': 10022,
+        },
+        'CEYREK_ESKI': {
+          'code': 'CEYREK_ESKI',
+          'alis': 9854,
+          'satis': 10111,
+          'kapanis': 9991,
+        },
+        'AYAR22': {
+          'code': 'AYAR22',
+          'alis': '5516.010',
+          'satis': '5737.120',
+          'kapanis': 5652.05,
+        },
+        'ONS': {
+          'code': 'ONS',
+          'alis': '3643.20',
+          'satis': '3643.60',
+          'tarih': '27-11-2026 22:14:59',
+          'dusuk': 3558.7,
+          'yuksek': '3685.10',
+          'kapanis': 3567.2,
+        },
+      },
+    };
+
+    test('has altın, çeyrek ve dövizler doğru okunur', () {
+      final s = parseHaremEvent(real, receivedAt: _t);
+      expect(s.quotes[AssetKind.gramGold]!.buy, 6063.75);
+      expect(s.quotes[AssetKind.gramGold]!.sell, 6124.6);
+      expect(s.quotes[AssetKind.quarterGold]!.buy, 9884);
+      expect(s.quotes[AssetKind.usd]!.buy, 50.642);
+      expect(s.quotes[AssetKind.eur]!.sell, 55.448);
+    });
+
+    test('eski çeyrek ve 22 ayar karışmaz', () {
+      final s = parseHaremEvent(real, receivedAt: _t);
+      expect(s.quotes[AssetKind.quarterGold]!.symbol, 'CEYREK_YENI');
+      expect(s.quotes[AssetKind.gramGold]!.symbol, 'ALTIN');
+      expect(s.quotes.length, 4);
+    });
+
+    test('değişim sitedeki formülle tutar (satış, kapanışa göre)', () {
+      final s = parseHaremEvent(real, receivedAt: _t);
+      expect(s.quotes[AssetKind.usd]!.changePercent, closeTo(0.0, 0.0001));
+      expect(s.quotes[AssetKind.eur]!.changePercent, closeTo(-0.3164, 0.001));
+      expect(s.quotes[AssetKind.gramGold]!.changePercent, closeTo(1.5, 0.01));
+      expect(s.ons!.changePercent, closeTo(2.1442, 0.001));
+    });
+
+    test('ons okunur', () {
+      final s = parseHaremEvent(real, receivedAt: _t);
+      expect(s.ons!.buy, 3643.2);
+      expect(s.ons!.sell, 3643.6);
+    });
+  });
 }
