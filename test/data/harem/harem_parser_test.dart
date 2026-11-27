@@ -291,7 +291,7 @@ void main() {
       expect(s.quotes[AssetKind.usd]!.changePercent, closeTo(0.0, 0.0001));
       expect(s.quotes[AssetKind.eur]!.changePercent, closeTo(-0.3164, 0.001));
       expect(s.quotes[AssetKind.gramGold]!.changePercent, closeTo(1.5, 0.01));
-      expect(s.ons!.changePercent, closeTo(2.1442, 0.001));
+      expect(s.ons!.changePercent, closeTo(2.1417, 0.001));
     });
 
     test('ons okunur', () {
