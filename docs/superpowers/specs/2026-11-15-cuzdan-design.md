@@ -115,7 +115,15 @@ Kayıt eksik: Şifreyi değiştir ekranı çizilmedi.
 - Tasarımdaki "Sistem" görünüm seçeneği: karanlık tema ilk sürümde yok,
   bu satır ya kaldırılır ya pasif bırakılır.
 
+## Kararlar (sonradan)
+
+- **2026-11-24:** Hesap ve veri katmanı **Supabase** (kullanıcının kararı).
+- **2026-11-27:** Fiyat kaynağı **Harem Altın**, sitenin Socket.IO akışı, uygulama doğrudan
+  bağlanır; gram altın = **has altın** (kullanıcının kararı). Kullanım izni yok, bkz. README.
+
 ## Açık sorular (kullanıcının cevabı gerekiyor)
+
+*(1. ve 2. maddeler yukarıdaki kararlarla kapandı.)*
 
 1. Hesap ve veri katmanı: A, B veya C? (öneri: A)
 2. Fiyat kaynağı: hangi üçüncü taraf servis, ya da Harem Altın ile

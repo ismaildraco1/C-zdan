@@ -55,6 +55,7 @@ flutter run \
 ```
 
 İki değerden biri eksikse uygulama sahte hesap ve cihaz içi varlıklarla açılır.
+Canlı fiyatlar için ayrıca `--dart-define=PRICE_SOURCE=harem` ekle (bkz. ana README).
 
 ## 6. Elle doğrulama listesi
 

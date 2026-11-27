@@ -7,6 +7,9 @@ import 'package:cuzdan/data/supabase/supabase_auth_repository.dart';
 import 'package:cuzdan/data/supabase/supabase_holdings_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:cuzdan/data/harem/harem_price_feed.dart';
+
+import 'support/fake_harem_connection.dart';
 import 'support/fake_supabase.dart';
 
 void main() {
@@ -44,6 +47,27 @@ void main() {
     expect(s.feed, isA<FakePriceFeed>());
     expect(s.usingSupabase, isTrue);
     expect(seen?.url, 'https://a.supabase.co');
+    s.feed.dispose();
+  });
+
+  test('PRICE_SOURCE=harem Harem akışını kurar ve hemen bağlanmaz', () async {
+    final conn = FakeHaremConnection();
+    final s = await createServices(
+      const AppConfig(url: '', anonKey: '', priceSource: 'harem'),
+      haremConnection: () => conn,
+    );
+    expect(s.feed, isA<HaremPriceFeed>());
+    expect(s.feed.sourceName, 'Harem Altın');
+    expect(conn.connectCalls, 0); // ilk dinleyiciye kadar bağlanmaz
+    s.feed.dispose();
+  });
+
+  test('Harem seçili değilse sahte akış kurulur', () async {
+    final s = await createServices(
+      const AppConfig(url: '', anonKey: ''),
+      haremConnection: () => throw StateError('çağrılmamalı'),
+    );
+    expect(s.feed, isA<FakePriceFeed>());
     s.feed.dispose();
   });
 }

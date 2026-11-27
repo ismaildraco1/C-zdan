@@ -9,7 +9,9 @@ abstract class PriceFeed {
   /// açıkça "Örnek fiyatlar" diye adlandırır.
   String get sourceName;
 
-  /// Yedi portföy türünün güncel fiyatları. Her olay tüm türleri içerir.
+  /// Portföy türlerinin güncel fiyatları. Her olay o ana kadar bilinen **tüm**
+  /// türleri içerir; canlı akışta henüz fiyatı gelmemiş bir tür eksik olabilir
+  /// (arayüz bunu "—" ile gösterir).
   Stream<Map<AssetKind, Quote>> get quotes;
 
   /// Ons altın fiyatı (yalnızca Piyasa ekranında gösterilir).

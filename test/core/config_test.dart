@@ -26,4 +26,33 @@ void main() {
   test('derleme ayarı verilmediğinde sahte mod seçilir', () {
     expect(AppConfig.fromEnvironment.isConfigured, isFalse);
   });
+
+  group('fiyat kaynağı', () {
+    test('varsayılan sahte kaynaktır', () {
+      expect(const AppConfig(url: '', anonKey: '').useHarem, isFalse);
+      expect(AppConfig.fromEnvironment.useHarem, isFalse);
+    });
+    test('PRICE_SOURCE=harem Harem Altın seçer', () {
+      expect(
+        const AppConfig(url: '', anonKey: '', priceSource: 'harem').useHarem,
+        isTrue,
+      );
+    });
+    test('büyük küçük harf ve boşluk önemsizdir', () {
+      expect(
+        const AppConfig(url: '', anonKey: '', priceSource: ' Harem ').useHarem,
+        isTrue,
+      );
+    });
+    test('tanınmayan değer sahteye döner', () {
+      expect(
+        const AppConfig(
+          url: '',
+          anonKey: '',
+          priceSource: 'bilinmiyor',
+        ).useHarem,
+        isFalse,
+      );
+    });
+  });
 }

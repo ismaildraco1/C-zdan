@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 import 'core/config.dart';
 import 'data/auth_repository.dart';
+import 'data/harem/harem_price_feed.dart';
 import 'data/holdings_repository.dart';
 import 'data/price_feed.dart';
 import 'data/supabase/supabase_auth_repository.dart';
@@ -38,13 +39,17 @@ Future<sb.SupabaseClient> _connect(AppConfig config) async {
 }
 
 /// Ayar verilmişse hesap ve varlıklar için Supabase'i, verilmemişse sahte
-/// servisleri kurar. Fiyat akışı şimdilik her iki durumda da sahtedir; fiyat
-/// kaynağı kararı verilince yalnızca burası değişir.
+/// servisleri kurar. Fiyat kaynağı bunlardan bağımsızdır: `PRICE_SOURCE=harem`
+/// ise canlı Harem Altın akışı, değilse örnek fiyatlar. Harem bağlantısı ilk
+/// dinleyiciye kadar açılmaz.
 Future<Services> createServices(
   AppConfig config, {
   SupabaseConnector connect = _connect,
+  HaremConnection Function()? haremConnection,
 }) async {
-  final feed = FakePriceFeed();
+  final PriceFeed feed = config.useHarem
+      ? HaremPriceFeed((haremConnection ?? SocketIoHaremConnection.new)())
+      : FakePriceFeed();
   if (!config.isConfigured) {
     return Services(
       auth: FakeAuthRepository(),
