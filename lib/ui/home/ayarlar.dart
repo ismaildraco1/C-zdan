@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme.dart';
 import '../../state/auth_controller.dart';
 import '../../state/market_controller.dart';
+import '../../state/settings_controller.dart';
 import '../widgets/avatar.dart';
 
 class AyarlarScreen extends StatefulWidget {
@@ -14,15 +15,15 @@ class AyarlarScreen extends StatefulWidget {
 }
 
 class _AyarlarScreenState extends State<AyarlarScreen> {
-  // Bu anahtarlar şimdilik yalnızca ekranda durur, kaydedilmez.
-  // Ayar deposu (cihaz ya da hesap) seçilince kalıcı hale getirilecek.
+  // Bildirim ve kilit anahtarları şimdilik yalnızca ekranda durur, kaydedilmez
+  // ve bir işe bağlı değildir.
   bool _notifications = true;
   bool _lock = true;
-  bool _hideBalance = false;
 
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthController>().user;
+    final settings = context.watch<SettingsController>();
     final source = context.watch<MarketController>().sourceName;
 
     return SafeArea(
@@ -104,8 +105,8 @@ class _AyarlarScreenState extends State<AyarlarScreen> {
             _SwitchRow(
               id: 'gizle',
               label: 'Bakiyeyi gizle',
-              value: _hideBalance,
-              onChanged: (v) => setState(() => _hideBalance = v),
+              value: settings.hideBalance,
+              onChanged: settings.setHideBalance,
             ),
           ]),
           _Group('Hakkında', [

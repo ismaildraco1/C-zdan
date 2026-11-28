@@ -10,6 +10,7 @@ import 'ui/assets/detay.dart';
 import 'ui/assets/varlik_ekle.dart';
 import 'state/market_controller.dart';
 import 'state/portfolio_controller.dart';
+import 'state/settings_controller.dart';
 import 'ui/auth/dogrulama.dart';
 import 'ui/auth/giris.dart';
 import 'ui/auth/kayit.dart';
@@ -24,12 +25,14 @@ class CuzdanApp extends StatefulWidget {
     required this.auth,
     required this.market,
     required this.portfolio,
+    required this.settings,
     this.useGoogleFonts = true,
   });
 
   final AuthController auth;
   final MarketController market;
   final PortfolioController portfolio;
+  final SettingsController settings;
   final bool useGoogleFonts;
 
   @override
@@ -82,6 +85,9 @@ class _CuzdanAppState extends State<CuzdanApp> {
         ChangeNotifierProvider<MarketController>.value(value: widget.market),
         ChangeNotifierProvider<PortfolioController>.value(
           value: widget.portfolio,
+        ),
+        ChangeNotifierProvider<SettingsController>.value(
+          value: widget.settings,
         ),
       ],
       child: MaterialApp(

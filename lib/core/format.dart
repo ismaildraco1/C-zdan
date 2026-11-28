@@ -7,6 +7,10 @@ final NumberFormat _pct = NumberFormat('0.00', 'tr_TR');
 /// `415206` -> `₺ 415.206,00`
 String formatTry(double v) => '₺ ${_money.format(v)}';
 
+/// Bakiye gizliyken TL tutarı ve miktar yerine yazılanlar.
+const String hiddenTry = '₺ ••••••';
+const String hiddenAmount = '••••';
+
 final NumberFormat _amount = NumberFormat('#,##0.##', 'tr_TR');
 
 /// `4148` -> `4.148,00` (TL işareti olmadan)

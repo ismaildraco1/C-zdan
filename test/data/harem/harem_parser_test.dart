@@ -47,7 +47,7 @@ void main() {
   });
 
   group('parseHaremEvent', () {
-    test('yedi portföy türünü ve onsu doğru kodlardan eşler', () {
+    test('dokuz portföy türünü ve onsu doğru kodlardan eşler', () {
       final s = parseHaremEvent(
         event([
           row('ALTIN', 4148, 4152),
@@ -57,6 +57,8 @@ void main() {
           row('USDTRY', 41.18, 41.22),
           row('EURTRY', 48.06, 48.14),
           row('GBPTRY', 55.24, 55.36),
+          row('AYAR22', 3800, 3900),
+          row('GUMUSTRY', 52.4, 53.6),
           row('ONS', 3120.4, 3121.4),
         ]),
         receivedAt: _t,
@@ -73,13 +75,27 @@ void main() {
       expect(s.quotes[AssetKind.usd]!.symbol, 'USDTRY');
     });
 
-    test('has altın ALTIN koduyla eşlenir, 22 ayar karışmaz', () {
+    test('has altın ve 22 ayar ayrı türlere eşlenir, karışmaz', () {
       final s = parseHaremEvent(
         event([row('AYAR22', 3800, 3900), row('ALTIN', 4148, 4152)]),
         receivedAt: _t,
       );
       expect(s.quotes[AssetKind.gramGold]!.buy, 4148);
-      expect(s.quotes, hasLength(1));
+      expect(s.quotes[AssetKind.gold22]!.buy, 3800);
+      expect(s.quotes, hasLength(2));
+    });
+
+    test('gümüş TL fiyatından okunur, dolar kodları karışmaz', () {
+      final s = parseHaremEvent(
+        event([
+          row('XAGUSD', 43.49, 43.51),
+          row('GUMUSUSD', 1333.8, 1520.9),
+          row('GUMUSTRY', '67.677', '77.299'),
+        ]),
+        receivedAt: _t,
+      );
+      expect(s.quotes.keys, [AssetKind.silver]);
+      expect(s.quotes[AssetKind.silver]!.buy, 67.677);
     });
 
     test('bilinmeyen kodlar yok sayılır', () {
@@ -258,6 +274,12 @@ void main() {
           'satis': '5737.120',
           'kapanis': 5652.05,
         },
+        'GUMUSTRY': {
+          'code': 'GUMUSTRY',
+          'alis': '67.677',
+          'satis': '77.299',
+          'kapanis': 74.06,
+        },
         'ONS': {
           'code': 'ONS',
           'alis': '3643.20',
@@ -279,11 +301,13 @@ void main() {
       expect(s.quotes[AssetKind.eur]!.sell, 55.448);
     });
 
-    test('eski çeyrek ve 22 ayar karışmaz', () {
+    test('eski çeyrek karışmaz; 22 ayar ve gümüş kendi türüne gider', () {
       final s = parseHaremEvent(real, receivedAt: _t);
       expect(s.quotes[AssetKind.quarterGold]!.symbol, 'CEYREK_YENI');
       expect(s.quotes[AssetKind.gramGold]!.symbol, 'ALTIN');
-      expect(s.quotes.length, 4);
+      expect(s.quotes[AssetKind.gold22]!.buy, 5516.01);
+      expect(s.quotes[AssetKind.silver]!.sell, 77.299);
+      expect(s.quotes.length, 6);
     });
 
     test('değişim sitedeki formülle tutar (satış, kapanışa göre)', () {

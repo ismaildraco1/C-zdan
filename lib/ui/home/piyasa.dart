@@ -9,14 +9,13 @@ import '../../state/market_controller.dart';
 import '../widgets/asset_icon.dart';
 import '../widgets/title_bar.dart';
 
-enum _Filter { all, gold, fx }
+enum _Filter { all, gold, silver, fx }
 
 class _Row {
-  const _Row(this.name, this.quote, {required this.fx, required this.gold});
+  const _Row(this.name, this.quote, this.group);
   final String name;
   final Quote? quote;
-  final bool fx;
-  final bool gold;
+  final AssetGroup group;
 }
 
 class PiyasaScreen extends StatefulWidget {
@@ -32,19 +31,22 @@ class _PiyasaScreenState extends State<PiyasaScreen> {
   List<_Row> _rows(MarketController m) {
     Quote? q(AssetKind k) => m.quotes[k];
     return [
-      _Row('Gram Altın', q(AssetKind.gramGold), fx: false, gold: true),
-      _Row('Çeyrek Altın', q(AssetKind.quarterGold), fx: false, gold: true),
-      _Row('Yarım Altın', q(AssetKind.halfGold), fx: false, gold: true),
-      _Row('Tam Altın', q(AssetKind.fullGold), fx: false, gold: true),
-      _Row('Ons Altın', m.ons, fx: false, gold: true),
-      _Row('USD / TL', q(AssetKind.usd), fx: true, gold: false),
-      _Row('EUR / TL', q(AssetKind.eur), fx: true, gold: false),
-      _Row('GBP / TL', q(AssetKind.gbp), fx: true, gold: false),
+      _Row('Gram Altın', q(AssetKind.gramGold), AssetGroup.gold),
+      _Row('22 Ayar Altın', q(AssetKind.gold22), AssetGroup.gold),
+      _Row('Çeyrek Altın', q(AssetKind.quarterGold), AssetGroup.gold),
+      _Row('Yarım Altın', q(AssetKind.halfGold), AssetGroup.gold),
+      _Row('Tam Altın', q(AssetKind.fullGold), AssetGroup.gold),
+      _Row('Ons Altın', m.ons, AssetGroup.gold),
+      _Row('Gümüş (gram)', q(AssetKind.silver), AssetGroup.silver),
+      _Row('USD / TL', q(AssetKind.usd), AssetGroup.fx),
+      _Row('EUR / TL', q(AssetKind.eur), AssetGroup.fx),
+      _Row('GBP / TL', q(AssetKind.gbp), AssetGroup.fx),
     ].where((r) {
       return switch (_filter) {
         _Filter.all => true,
-        _Filter.gold => r.gold,
-        _Filter.fx => r.fx,
+        _Filter.gold => r.group == AssetGroup.gold,
+        _Filter.silver => r.group == AssetGroup.silver,
+        _Filter.fx => r.group == AssetGroup.fx,
       };
     }).toList();
   }
@@ -123,6 +125,7 @@ class _Segments extends StatelessWidget {
         children: [
           seg('Tümü', _Filter.all),
           seg('Altın', _Filter.gold),
+          seg('Gümüş', _Filter.silver),
           seg('Döviz', _Filter.fx),
         ],
       ),
@@ -168,7 +171,8 @@ class _MarketRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = row.quote;
-    String price(double v) => row.fx ? formatRate(v) : formatMoney(v);
+    String price(double v) =>
+        row.group == AssetGroup.fx ? formatRate(v) : formatMoney(v);
     const priceStyle = TextStyle(fontSize: 15, fontWeight: FontWeight.w600);
     return Container(
       constraints: const BoxConstraints(minHeight: 56),

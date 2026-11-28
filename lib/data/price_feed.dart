@@ -32,6 +32,8 @@ class _Base {
 
 const _bases = <AssetKind, _Base>{
   AssetKind.gramGold: _Base('GRAM', 4148, 4, 0.84),
+  AssetKind.gold22: _Base('AYAR22', 3780, 120, 0.82),
+  AssetKind.silver: _Base('GUMUS', 52.40, 1.20, 0.45),
   AssetKind.quarterGold: _Base('CEYREK', 6940, 20, 0.79),
   AssetKind.halfGold: _Base('YARIM', 13880, 40, 0.80),
   AssetKind.fullGold: _Base('TAM', 27760, 80, 0.78),

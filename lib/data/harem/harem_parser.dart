@@ -3,13 +3,16 @@ import '../../domain/models.dart';
 
 /// Harem Altın ürün kodları ile portföy türleri arasındaki eşleşme.
 ///
-/// - Gram altın: `ALTIN` (has altın, 24 ayar). 22 ayar (`AYAR22`) kullanılmaz.
+/// - Gram altın: `ALTIN` (has altın, 24 ayar). 22 ayar ayrı bir türdür: `AYAR22` (gram).
 /// - Çeyrek, yarım, tam: güncel yıl sikkeleri (`*_YENI`). Eski sikkeler (`*_ESKI`) kullanılmaz.
+/// - Gümüş: `GUMUSTRY` (gram, TL). Dolar bazlı `XAGUSD` ve `GUMUSUSD` kullanılmaz.
 const Map<AssetKind, String> haremCodes = {
   AssetKind.gramGold: 'ALTIN',
+  AssetKind.gold22: 'AYAR22',
   AssetKind.quarterGold: 'CEYREK_YENI',
   AssetKind.halfGold: 'YARIM_YENI',
   AssetKind.fullGold: 'TEK_YENI',
+  AssetKind.silver: 'GUMUSTRY',
   AssetKind.usd: 'USDTRY',
   AssetKind.eur: 'EURTRY',
   AssetKind.gbp: 'GBPTRY',

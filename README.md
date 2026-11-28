@@ -54,7 +54,7 @@ uygulamaya hiçbir zaman konmaz.
 akışına doğrudan bağlanır (`wss://hrmsocketonly.haremaltin.com`, yalnızca `websocket`
 taşıması, kimlik doğrulama yok, `price_changed` olayı). Kod: `lib/data/harem/`.
 
-**Gerçek veriyle doğrulandı (2026-11-28).** Canlı akıştan sekiz ürünün hepsi geldi;
+**Gerçek veriyle doğrulandı (2026-11-28).** Canlı akıştan uygulamanın kullandığı on ürünün hepsi geldi;
 ilk olay 58 ürünün tamamını içeren tam bir anlık görüntü, sonrakiler yalnızca değişenleri
 taşıyor. Sayılar bazen metin (`"50.6420"`), bazen sayı (`9884`) geliyor ve noktalı ondalıkla
 yazılıyor; ayrıştırıcı ikisini de okur, gerçek satırlar `harem_parser_test.dart` içinde
@@ -71,7 +71,8 @@ Piyasa kapalıyken (gece, hafta sonu) yeni olay gelmez; rozet "Son güncelleme" 
 Bu bir hata değil, son bilinen fiyatın zamanıdır.
 
 Ürün eşleşmesi (`lib/data/harem/harem_parser.dart`): Gram altın = `ALTIN` (**has altın**,
-22 ayar değil), Çeyrek/Yarım/Tam = `CEYREK_YENI`/`YARIM_YENI`/`TEK_YENI`, USD/EUR/GBP =
+22 ayar değil), 22 ayar altın = `AYAR22`, gümüş = `GUMUSTRY` (ikisi de gram),
+Çeyrek/Yarım/Tam = `CEYREK_YENI`/`YARIM_YENI`/`TEK_YENI`, USD/EUR/GBP =
 `USDTRY`/`EURTRY`/`GBPTRY`, Ons = `ONS`. Değişim yüzdesi sitedeki gibi satış fiyatının
 kapanışa göre farkıdır. Fiyatın "güncellik" zamanı, cihaza ulaştığı andır.
 
@@ -118,8 +119,9 @@ doğruluğunu ayrıca kontrol etmek gerekir.
 - Çevrimdışı çalışma yok: bağlantı yoksa değişiklik kaydedilmez, hata gösterilir ve
   liste eski haline döner. Çıkış yapmak da bağlantı ister.
 - İki cihazdan aynı anda düzenleme: en son kaydeden kazanır.
-- Karanlık tema yok. Ayarlar'daki bildirim, uygulama kilidi ve bakiyeyi gizleme
-  anahtarları ekranda durur ama kaydedilmez ve bir işe bağlı değildir.
+- Karanlık tema yok. Ayarlar'daki bildirim ve uygulama kilidi anahtarları ekranda
+  durur ama kaydedilmez ve bir işe bağlı değildir. (Bakiyeyi gizle çalışır ve cihazda
+  saklanır; Portföy'deki göz düğmesiyle aynı ayardır.)
 - Profil'de e-posta ve fotoğraf değiştirilemez.
 - Detay ekranında gün aralığı ve dönem seçici yok. Grafik, uygulama açıkken gelen
   son 60 fiyattan çizilir.

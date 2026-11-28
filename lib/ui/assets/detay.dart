@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 
 import '../../core/format.dart';
 import '../../core/theme.dart';
+import '../../domain/asset_kind.dart';
 import '../../domain/models.dart';
 import '../../domain/portfolio.dart';
 import '../../state/market_controller.dart';
 import '../../state/portfolio_controller.dart';
+import '../../state/settings_controller.dart';
 import '../widgets/buttons.dart';
 import '../widgets/header.dart';
 import 'chart.dart';
@@ -59,6 +61,7 @@ class DetayScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final portfolio = context.watch<PortfolioController>();
     final market = context.watch<MarketController>();
+    final hidden = context.watch<SettingsController>().hideBalance;
     final matches = portfolio.holdings.where((x) => x.id == holding.id);
     if (matches.isEmpty) return const Scaffold(body: SizedBox.shrink());
     final h = matches.first;
@@ -67,7 +70,7 @@ class DetayScreen extends StatelessWidget {
     final value = portfolio.valueOf(h);
     final change = dayChange([h], market.quotes);
     final history = market.history(h.kind);
-    final fx = !h.kind.isGold;
+    final fx = h.kind.group == AssetGroup.fx;
     String price(double v) => fx ? formatRate(v) : formatMoney(v);
 
     return Scaffold(
@@ -85,7 +88,7 @@ class DetayScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Elindeki ${formatAmount(h.amount)} ${h.kind.unit}',
+                          'Elindeki ${hidden ? hiddenAmount : formatAmount(h.amount)} ${h.kind.unit}',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -97,7 +100,11 @@ class DetayScreen extends StatelessWidget {
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            value == null ? '—' : formatTry(value),
+                            value == null
+                                ? '—'
+                                : hidden
+                                ? hiddenTry
+                                : formatTry(value),
                             style: const TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.w700,
@@ -109,7 +116,7 @@ class DetayScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
-                              '${change.amount > 0 ? '▲' : '▼'} ${formatTry(change.amount.abs())} · ${formatPercent(change.percent)} bugün',
+                              '${change.amount > 0 ? '▲' : '▼'} ${hidden ? hiddenTry : formatTry(change.amount.abs())} · ${formatPercent(change.percent)} bugün',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

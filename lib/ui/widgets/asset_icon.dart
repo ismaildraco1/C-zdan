@@ -3,7 +3,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/theme.dart';
 import '../../domain/asset_kind.dart';
 
-/// Varlık türünü gösteren yuvarlak simge: altın için "Au", dövizler için işareti.
+/// Varlık türünü gösteren yuvarlak simge: altın için "Au", gümüş için "Ag",
+/// dövizler için işareti.
 class AssetIcon extends StatelessWidget {
   const AssetIcon(this.kind, {super.key, this.size = 40});
 
@@ -14,26 +15,28 @@ class AssetIcon extends StatelessWidget {
     AssetKind.usd => r'$',
     AssetKind.eur => '€',
     AssetKind.gbp => '£',
+    AssetKind.silver => 'Ag',
     _ => 'Au',
   };
 
   @override
   Widget build(BuildContext context) {
-    final gold = kind.isGold;
+    final (background, foreground) = switch (kind.group) {
+      AssetGroup.gold => (const Color(0xFFEADFC0), const Color(0xFF6B5316)),
+      AssetGroup.silver => (const Color(0xFFE2E5E9), const Color(0xFF4A535E)),
+      AssetGroup.fx => (const Color(0xFFDCE8E1), AppColors.green),
+    };
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: gold ? const Color(0xFFEADFC0) : const Color(0xFFDCE8E1),
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: background, shape: BoxShape.circle),
       child: Text(
         glyph(kind),
         style: TextStyle(
-          fontSize: gold ? 13 : 16,
+          fontSize: kind.group == AssetGroup.fx ? 16 : 13,
           fontWeight: FontWeight.w700,
-          color: gold ? const Color(0xFF6B5316) : AppColors.green,
+          color: foreground,
         ),
       ),
     );

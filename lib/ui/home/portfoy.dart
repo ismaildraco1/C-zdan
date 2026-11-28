@@ -7,6 +7,7 @@ import '../../domain/models.dart';
 import '../../domain/portfolio.dart';
 import '../../state/market_controller.dart';
 import '../../state/portfolio_controller.dart';
+import '../../state/settings_controller.dart';
 import '../widgets/asset_icon.dart';
 import '../widgets/buttons.dart';
 import '../widgets/title_bar.dart';
@@ -18,6 +19,8 @@ class PortfoyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final portfolio = context.watch<PortfolioController>();
     final market = context.watch<MarketController>();
+    final settings = context.watch<SettingsController>();
+    final hidden = settings.hideBalance;
     final holdings = portfolio.holdings;
     final change = dayChange(holdings, market.quotes);
 
@@ -32,6 +35,8 @@ class PortfoyScreen extends StatelessWidget {
             total: portfolio.total,
             change: change,
             hasHoldings: holdings.isNotEmpty,
+            hidden: hidden,
+            onToggleHidden: () => settings.setHideBalance(!hidden),
           ),
           const SizedBox(height: 26),
           Row(
@@ -66,6 +71,7 @@ class PortfoyScreen extends StatelessWidget {
                 holding: h,
                 value: portfolio.valueOf(h),
                 quote: market.quotes[h.kind],
+                hidden: hidden,
               ),
         ],
       ),
@@ -78,11 +84,15 @@ class _Hero extends StatelessWidget {
     required this.total,
     required this.change,
     required this.hasHoldings,
+    required this.hidden,
+    required this.onToggleHidden,
   });
 
   final double total;
   final ({double amount, double percent}) change;
   final bool hasHoldings;
+  final bool hidden;
+  final VoidCallback onToggleHidden;
 
   @override
   Widget build(BuildContext context) {
@@ -105,23 +115,41 @@ class _Hero extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              formatTry(total),
-              style: const TextStyle(
-                fontSize: 38,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.5,
+          Row(
+            children: [
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    hidden ? hiddenTry : formatTry(total),
+                    style: const TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 4),
+              IconButton(
+                key: const Key('bakiye-gizle'),
+                tooltip: hidden ? 'Bakiyeyi göster' : 'Bakiyeyi gizle',
+                onPressed: onToggleHidden,
+                color: const Color(0xFFA9C3BA),
+                icon: Icon(
+                  hidden
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                ),
+              ),
+            ],
           ),
           if (hasHoldings && change.amount != 0) ...[
             const SizedBox(height: 10),
             Text(
-              '${up ? '▲' : '▼'} ${formatTry(change.amount.abs())} · ${formatPercent(change.percent)}',
+              '${up ? '▲' : '▼'} ${hidden ? hiddenTry : formatTry(change.amount.abs())} · ${formatPercent(change.percent)}',
               style: const TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -145,11 +173,13 @@ class _HoldingRow extends StatelessWidget {
     required this.holding,
     required this.value,
     required this.quote,
+    required this.hidden,
   });
 
   final Holding holding;
   final double? value;
   final Quote? quote;
+  final bool hidden;
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +211,7 @@ class _HoldingRow extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${formatAmount(holding.amount)} ${holding.kind.unit}',
+                    '${hidden ? hiddenAmount : formatAmount(holding.amount)} ${holding.kind.unit}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -201,7 +231,11 @@ class _HoldingRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      value == null ? '—' : formatTry(value!),
+                      value == null
+                          ? '—'
+                          : hidden
+                          ? hiddenTry
+                          : formatTry(value!),
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

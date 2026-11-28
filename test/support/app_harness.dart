@@ -8,6 +8,7 @@ import 'package:cuzdan/domain/models.dart';
 import 'package:cuzdan/state/auth_controller.dart';
 import 'package:cuzdan/state/market_controller.dart';
 import 'package:cuzdan/state/portfolio_controller.dart';
+import 'package:cuzdan/state/settings_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'test_feed.dart';
@@ -80,6 +81,7 @@ Future<Harness> pumpApp(
       auth: auth,
       market: market,
       portfolio: portfolio,
+      settings: SettingsController(),
       useGoogleFonts: false,
     ),
   );

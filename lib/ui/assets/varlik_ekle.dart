@@ -13,9 +13,11 @@ import '../widgets/header.dart';
 
 const _chipLabels = {
   AssetKind.gramGold: 'Gram Altın',
+  AssetKind.gold22: '22 Ayar',
   AssetKind.quarterGold: 'Çeyrek',
   AssetKind.halfGold: 'Yarım',
   AssetKind.fullGold: 'Tam',
+  AssetKind.silver: 'Gümüş',
   AssetKind.usd: 'USD',
   AssetKind.eur: 'EUR',
   AssetKind.gbp: 'GBP',

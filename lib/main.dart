@@ -6,6 +6,7 @@ import 'core/config.dart';
 import 'state/auth_controller.dart';
 import 'state/market_controller.dart';
 import 'state/portfolio_controller.dart';
+import 'state/settings_controller.dart';
 
 /// Supabase ayarı `--dart-define` ile verilir (bkz. README). Verilmezse hesap ve
 /// varlıklar sahtedir: uygulama kapanınca hesaplar silinir.
@@ -21,5 +22,14 @@ Future<void> main() async {
   final portfolio = PortfolioController(services.holdings, market);
   final auth = AuthController(services.auth);
   await auth.restore();
-  runApp(CuzdanApp(auth: auth, market: market, portfolio: portfolio));
+  final settings = SettingsController();
+  await settings.load();
+  runApp(
+    CuzdanApp(
+      auth: auth,
+      market: market,
+      portfolio: portfolio,
+      settings: settings,
+    ),
+  );
 }

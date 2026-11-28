@@ -18,8 +18,10 @@ Uygulamanın ona ihtiyacı yok.
 
 ## 2. Şemayı kur
 
-SQL Editor'de `migrations/20261124000000_init.sql` dosyasının tamamını çalıştır.
-Şunları oluşturur:
+SQL Editor'de `migrations/` altındaki dosyaların tamamını **ad sırasıyla** çalıştır:
+önce `20261124000000_init.sql`, sonra `20261128000000_add_gold22_silver.sql`
+(22 ayar altın ve gümüş türlerine izin verir; bu ikincisi henüz hiçbir Postgres'te
+sınanmadı). İlk dosya şunları oluşturur:
 
 - `public.holdings` tablosu (kullanıcının varlıkları) ve satır düzeyinde güvenlik:
   herkes yalnızca kendi satırlarını görür, ekler, değiştirir ve siler.

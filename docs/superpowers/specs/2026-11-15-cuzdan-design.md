@@ -120,6 +120,8 @@ Kayıt eksik: Şifreyi değiştir ekranı çizilmedi.
 - **2026-11-24:** Hesap ve veri katmanı **Supabase** (kullanıcının kararı).
 - **2026-11-27:** Fiyat kaynağı **Harem Altın**, sitenin Socket.IO akışı, uygulama doğrudan
   bağlanır; gram altın = **has altın** (kullanıcının kararı). Kullanım izni yok, bkz. README.
+- **2026-11-28:** Desteklenen varlıklara **22 ayar altın** (gram) ve **gümüş** (gram)
+  eklendi (kullanıcının kararı).
 
 ## Açık sorular (kullanıcının cevabı gerekiyor)
 

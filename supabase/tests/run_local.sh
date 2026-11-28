@@ -10,5 +10,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 dropdb --if-exists "$DB"
 createdb "$DB"
 psql -q -v ON_ERROR_STOP=1 -d "$DB" -f "$HERE/00_supabase_stub.sql"
-psql -q -v ON_ERROR_STOP=1 -d "$DB" -f "$HERE/../migrations/20261124000000_init.sql"
+for migration in "$HERE"/../migrations/*.sql; do
+  psql -q -v ON_ERROR_STOP=1 -d "$DB" -f "$migration"
+done
 psql -d "$DB" -f "$HERE/10_rls_test.sql"
