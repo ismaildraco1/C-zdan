@@ -88,6 +88,12 @@ class _AyarlarScreenState extends State<AyarlarScreen> {
             const _ValueRow('Ana para birimi', 'Türk Lirası (₺)'),
             const _ValueRow('Değer hesabı', 'Alış fiyatı'),
             _SwitchRow(
+              id: 'birlestir',
+              label: 'Aynı türleri birleştir',
+              value: settings.mergeSameKind,
+              onChanged: settings.setMergeSameKind,
+            ),
+            _SwitchRow(
               id: 'bildirim',
               label: 'Fiyat bildirimleri',
               value: _notifications,

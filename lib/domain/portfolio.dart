@@ -8,6 +8,26 @@ double? rowValue(Holding h, Map<AssetKind, Quote> quotes) {
   return h.amount * quote.buy;
 }
 
+/// Kayıtları türüne göre toplar. Gruplar türün ilk görüldüğü sırada, kayıtlar
+/// kendi sıralarında kalır.
+List<List<Holding>> groupByKind(List<Holding> holdings) {
+  final groups = <AssetKind, List<Holding>>{};
+  for (final h in holdings) {
+    (groups[h.kind] ??= []).add(h);
+  }
+  return groups.values.toList();
+}
+
+/// Aynı türden kayıtların toplam miktarı.
+double totalAmount(List<Holding> records) =>
+    records.fold(0, (sum, h) => sum + h.amount);
+
+/// Aynı türden kayıtların toplam TL değeri. Fiyat yoksa `null`.
+double? totalValue(List<Holding> records, Map<AssetKind, Quote> quotes) =>
+    records.every((h) => quotes[h.kind] == null)
+    ? null
+    : netValue(records, quotes);
+
 /// Bugünkü değişim: şu anki değerle günün açılış değeri arasındaki fark (TL)
 /// ve yüzdesi. Fiyatı olmayan kayıtlar hesaba girmez.
 ({double amount, double percent}) dayChange(

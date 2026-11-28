@@ -23,6 +23,18 @@ void main() {
     expect(second.hideBalance, isTrue);
   });
 
+  test('birleştirme ilk açılışta kapalıdır ve seçim korunur', () async {
+    final first = SettingsController();
+    await first.load();
+    expect(first.mergeSameKind, isFalse);
+    await first.setMergeSameKind(true);
+
+    final second = SettingsController();
+    await second.load();
+    expect(second.mergeSameKind, isTrue);
+    expect(second.hideBalance, isFalse);
+  });
+
   test('değişiklik dinleyicilere kaydı beklemeden bildirilir', () {
     final settings = SettingsController();
     var calls = 0;

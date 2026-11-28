@@ -121,7 +121,8 @@ doğruluğunu ayrıca kontrol etmek gerekir.
 - İki cihazdan aynı anda düzenleme: en son kaydeden kazanır.
 - Karanlık tema yok. Ayarlar'daki bildirim ve uygulama kilidi anahtarları ekranda
   durur ama kaydedilmez ve bir işe bağlı değildir. (Bakiyeyi gizle çalışır ve cihazda
-  saklanır; Portföy'deki göz düğmesiyle aynı ayardır.)
+  saklanır; Portföy'deki göz düğmesiyle aynı ayardır. "Aynı türleri birleştir" de
+çalışır, varsayılan kapalıdır ve yalnızca görünümü değiştirir; kayıtlar ayrı saklanır.)
 - Profil'de e-posta ve fotoğraf değiştirilemez.
 - Detay ekranında gün aralığı ve dönem seçici yok. Grafik, uygulama açıkken gelen
   son 60 fiyattan çizilir.

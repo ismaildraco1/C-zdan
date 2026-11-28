@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import 'core/theme.dart';
+import 'domain/asset_kind.dart';
 import 'domain/models.dart';
 import 'state/auth_controller.dart';
 import 'ui/account/hesap_sil.dart';
@@ -122,7 +123,11 @@ Route<dynamic>? _route(RouteSettings settings) {
     case '/ekle':
       page = VarlikEkleScreen(editing: settings.arguments as Holding?);
     case '/detay':
-      page = DetayScreen(holding: settings.arguments as Holding);
+      // Tek kayıt ya da (birleştirilmiş satırdan) bir tür.
+      page = switch (settings.arguments) {
+        final AssetKind kind => DetayScreen.merged(kind),
+        final arguments => DetayScreen(holding: arguments as Holding),
+      };
     case '/profil':
       page = const ProfilScreen();
     case '/hesap-sil':

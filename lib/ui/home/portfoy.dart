@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/format.dart';
 import '../../core/theme.dart';
+import '../../domain/asset_kind.dart';
 import '../../domain/models.dart';
 import '../../domain/portfolio.dart';
 import '../../state/market_controller.dart';
@@ -23,6 +24,12 @@ class PortfoyScreen extends StatelessWidget {
     final hidden = settings.hideBalance;
     final holdings = portfolio.holdings;
     final change = dayChange(holdings, market.quotes);
+    // Her satır bir ya da (birleştirme açıksa) aynı türden birkaç kayıttır.
+    final rows = settings.mergeSameKind
+        ? groupByKind(holdings)
+        : [
+            for (final h in holdings) [h],
+          ];
 
     return SafeArea(
       bottom: false,
@@ -66,11 +73,11 @@ class PortfoyScreen extends StatelessWidget {
           else if (holdings.isEmpty)
             const _EmptyState()
           else
-            for (final h in holdings)
+            for (final records in rows)
               _HoldingRow(
-                holding: h,
-                value: portfolio.valueOf(h),
-                quote: market.quotes[h.kind],
+                records: records,
+                value: totalValue(records, market.quotes),
+                quote: market.quotes[records.first.kind],
                 hidden: hidden,
               ),
         ],
@@ -170,13 +177,14 @@ class _Hero extends StatelessWidget {
 
 class _HoldingRow extends StatelessWidget {
   const _HoldingRow({
-    required this.holding,
+    required this.records,
     required this.value,
     required this.quote,
     required this.hidden,
   });
 
-  final Holding holding;
+  /// Aynı türden bir ya da daha çok kayıt; boş olamaz.
+  final List<Holding> records;
   final double? value;
   final Quote? quote;
   final bool hidden;
@@ -184,9 +192,14 @@ class _HoldingRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final q = quote;
+    final AssetKind kind = records.first.kind;
+    final merged = records.length > 1;
+    final amount = totalAmount(records);
     return InkWell(
-      onTap: () =>
-          Navigator.of(context).pushNamed('/detay', arguments: holding),
+      onTap: () => Navigator.of(context).pushNamed(
+        '/detay',
+        arguments: merged ? kind : records.first,
+      ),
       child: Container(
         constraints: const BoxConstraints(minHeight: 64),
         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -195,14 +208,14 @@ class _HoldingRow extends StatelessWidget {
         ),
         child: Row(
           children: [
-            AssetIcon(holding.kind),
+            AssetIcon(kind),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    holding.kind.label,
+                    kind.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -211,7 +224,8 @@ class _HoldingRow extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${hidden ? hiddenAmount : formatAmount(holding.amount)} ${holding.kind.unit}',
+                    '${hidden ? hiddenAmount : formatAmount(amount)} ${kind.unit}'
+                    '${merged ? ' · ${records.length} kayıt' : ''}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(

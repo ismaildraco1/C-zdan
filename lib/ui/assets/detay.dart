@@ -14,10 +14,18 @@ import '../widgets/header.dart';
 import 'chart.dart';
 
 /// Tek bir varlığın değeri, fiyat grafiği, alış/satış fiyatı ve düzenle/sil işlemleri.
+///
+/// [DetayScreen.merged] ise bir türün bütün kayıtlarının toplamını gösterir;
+/// düzenlemek ve silmek için listeden bir kayıt açılır.
 class DetayScreen extends StatelessWidget {
-  const DetayScreen({super.key, required this.holding});
+  const DetayScreen({super.key, required Holding this.holding})
+    : mergedKind = null;
 
-  final Holding holding;
+  const DetayScreen.merged(AssetKind this.mergedKind, {super.key})
+    : holding = null;
+
+  final Holding? holding;
+  final AssetKind? mergedKind;
 
   Future<void> _confirmDelete(BuildContext context, Holding h) async {
     final portfolio = context.read<PortfolioController>();
@@ -62,13 +70,20 @@ class DetayScreen extends StatelessWidget {
     final portfolio = context.watch<PortfolioController>();
     final market = context.watch<MarketController>();
     final hidden = context.watch<SettingsController>().hideBalance;
-    final matches = portfolio.holdings.where((x) => x.id == holding.id);
-    if (matches.isEmpty) return const Scaffold(body: SizedBox.shrink());
-    final h = matches.first;
+    final merged = mergedKind;
+    final records = portfolio.holdings
+        .where((x) => merged == null ? x.id == holding!.id : x.kind == merged)
+        .toList();
+    if (records.isEmpty) {
+      return merged == null
+          ? const Scaffold(body: SizedBox.shrink())
+          : _NoRecords(merged);
+    }
+    final h = records.first;
 
     final quote = market.quotes[h.kind];
-    final value = portfolio.valueOf(h);
-    final change = dayChange([h], market.quotes);
+    final value = totalValue(records, market.quotes);
+    final change = dayChange(records, market.quotes);
     final history = market.history(h.kind);
     final fx = h.kind.group == AssetGroup.fx;
     String price(double v) => fx ? formatRate(v) : formatMoney(v);
@@ -88,7 +103,7 @@ class DetayScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Elindeki ${hidden ? hiddenAmount : formatAmount(h.amount)} ${h.kind.unit}',
+                          'Elindeki ${hidden ? hiddenAmount : formatAmount(totalAmount(records))} ${h.kind.unit}',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -169,52 +184,70 @@ class DetayScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (merged != null) ...[
+                          const SizedBox(height: 22),
+                          const Text(
+                            'Kayıtlar',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          for (final record in records)
+                            _RecordRow(
+                              record: record,
+                              value: portfolio.valueOf(record),
+                              hidden: hidden,
+                            ),
+                        ],
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: AppColors.hairline)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: PrimaryButton(
-                      label: 'Miktarı düzenle',
-                      onPressed: () =>
-                          Navigator.of(context)
-                              .pushNamed('/ekle', arguments: h),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    height: 54,
-                    child: OutlinedButton(
-                      onPressed: () => _confirmDelete(context, h),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.down,
-                        side: const BorderSide(color: Color(0xFFD9B3AE)),
-                        backgroundColor: AppColors.card,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text(
-                        'Varlığı sil',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+            if (merged == null)
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                decoration: const BoxDecoration(
+                  border: Border(top: BorderSide(color: AppColors.hairline)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
+                        label: 'Miktarı düzenle',
+                        onPressed: () =>
+                            Navigator.of(context)
+                                .pushNamed('/ekle', arguments: h),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      height: 54,
+                      child: OutlinedButton(
+                        onPressed: () => _confirmDelete(context, h),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.down,
+                          side: const BorderSide(color: Color(0xFFD9B3AE)),
+                          backgroundColor: AppColors.card,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          'Varlığı sil',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ],
         ),
       ),
@@ -224,6 +257,112 @@ class DetayScreen extends StatelessWidget {
 
 Color changeColorFor(double amount) =>
     amount > 0 ? AppColors.up : AppColors.down;
+
+/// Birleşik detaydaki tek kayıt; dokununca o kaydın detayı açılır.
+class _RecordRow extends StatelessWidget {
+  const _RecordRow({
+    required this.record,
+    required this.value,
+    required this.hidden,
+  });
+
+  final Holding record;
+  final double? value;
+  final bool hidden;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Navigator.of(context).pushNamed('/detay', arguments: record),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: AppColors.hairline)),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${hidden ? hiddenAmount : formatAmount(record.amount)} ${record.kind.unit}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (record.note.isNotEmpty)
+                    Text(
+                      record.note,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: Text(
+                  value == null
+                      ? '—'
+                      : hidden
+                      ? hiddenTry
+                      : formatTry(value!),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Birleşik detay açıkken türün bütün kayıtları silindi.
+class _NoRecords extends StatelessWidget {
+  const _NoRecords(this.kind);
+
+  final AssetKind kind;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ScreenHeader(title: kind.label),
+              const SizedBox(height: 32),
+              const Text(
+                'Bu türde varlığın kalmadı.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppColors.muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _Stat extends StatelessWidget {
   const _Stat(this.label, this.value, {this.small = false});
